@@ -1,6 +1,6 @@
 # Algorithms_learninig
 ## Introduction
-A template lib of data structures and algorithms of book Introduction to Algorithms, mainly written in C++
+A template lib of data structures and algorithms of book Introduction to Algorithms, mainly based on C++
 
 ## Status
 This lib will be aperiodically updated. And I'll maintain this lib since **six months after the time when it will be finished**.
