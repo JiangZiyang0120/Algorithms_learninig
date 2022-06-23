@@ -5,7 +5,7 @@
 #ifndef ALGORITHMS_SORTHEADER_H
 #define ALGORITHMS_SORTHEADER_H
 
-#include "../../Test/test.h"
+#include "../../Example/Test/test.h"
 #include <vector>
 
 #endif //ALGORITHMS_SORTHEADER_H

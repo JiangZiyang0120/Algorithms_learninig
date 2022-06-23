@@ -33,7 +33,7 @@
 
 #  Directory
 cmake-build-debug/*
-Test/*
+Example/Test/*
 .idea/*
 
 ## File
