@@ -32,5 +32,10 @@
 *.app
 
 #  Directory
-./cmake-build-debug/*
-./Test/*
+cmake-build-debug/*
+Test/*
+.idea/*
+
+## File
+main.cpp
+CMakeLists.txt
