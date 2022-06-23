@@ -5,7 +5,8 @@
 #ifndef ALGORITHMS_ALGORITHMS_H
 #define ALGORITHMS_ALGORITHMS_H
 
-#include "Sort/Insertion_sort.h"
+#include "Sort/Insertion_Sort.h"
 #include "Sort/Merge_Sort.h"
+#include "Sort/Heap_Sort.h"
 
 #endif //ALGORITHMS_ALGORITHMS_H
