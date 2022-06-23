@@ -30,28 +30,40 @@ void theShowFunction() {
     // This function is built by the max-heap principle but also return the default order
     a = heapSort(a);
     a = reverseHeapSort(a);
+
+    // quickSort
+    a = quickSort(a);
+    a = reverseQuickSort(a);
 }
 
-class testtype{
+class testtype {
 public:
-    bool operator<(testtype &l){
+    bool operator<(testtype &l) {
         return this->a < l.a;
     }
 
-    testtype &operator=(testtype &b){
+    testtype &operator=(testtype &b) {
         this->a = b.a;
         return *this;
     }
 
-    testtype(double b):a(b){}
+    testtype(double b) : a(b) {}
+
 private:
     double a;
 };
 
-viod showResult(){
+void showResult() {
     std::vector<double> a = {1.2, 3.9, 2.4, 6.4, 2.1, 1.3, 2.1, 7.0, 5.2, -3, 0};
-    std::cout<<mergeSort(a)<<std::endl;
+    std::cout << mergeSort(a) << std::endl;
 
+    /*
+     * You can define your type and use this sort function, as well
+     * And because the sort function judge the order by operator<
+     * Thus you must overload this operator for your own type
+     * !!!!Notice!!!!:
+     * If you want to use the quickSort, you must use the type which defines operator<=
+     */
     std::vector<testtype> b = {1.2, 3.9, 2.4, 6.4, 2.1, 1.3, 2.1, 7.0, 5.2, -3, 0};
-    std::cout<<heapSort(a)<<std::endl;
+    std::cout << heapSort(a) << std::endl;
 }
