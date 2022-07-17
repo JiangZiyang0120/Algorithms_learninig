@@ -5,6 +5,6 @@
 #ifndef ALGORITHMS_MAIN_ALGORITHMS_H
 #define ALGORITHMS_MAIN_ALGORITHMS_H
 
-#include "./Algorithms/algorithms.h"
+#include "./Algorithms/Sort.h"
 
 #endif //ALGORITHMS_ALGORITHMS_H

@@ -1,4 +1,4 @@
-# Algorithms_learninig
+# Algorithms_Learning
 ## Introduction
 A template lib of data structures and algorithms of book Introduction to Algorithms, mainly based on C++
 

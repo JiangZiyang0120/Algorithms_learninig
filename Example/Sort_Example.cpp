@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 #include "../algorithms.h"
-# include "./Test/test.h"
+#include "Supported_Tools.h"
 
 /* This function shows each sort algorithms' API
  * The input and output vectors are all l-value
@@ -55,6 +55,9 @@ private:
 
 void showResult() {
     std::vector<double> a = {1.2, 3.9, 2.4, 6.4, 2.1, 1.3, 2.1, 7.0, 5.2, -3, 0};
+    std::cout << "The origin list is:" <<std::endl;
+    std::cout << a << std::endl;
+    std::cout << "The sorted list is(by using the margeSort function):" << std::endl;
     std::cout << mergeSort(a) << std::endl;
 
     /*
@@ -62,8 +65,14 @@ void showResult() {
      * And because the sort function judge the order by operator<
      * Thus you must overload this operator for your own type
      * !!!!Notice!!!!:
-     * If you want to use the quickSort, you must use the type which defines operator<=
+     * If you want to use the quickSort, you must use the type which defined operator<=
      */
+    std::cout << "We could use the self-defined typename, as well" <<std::endl;
     std::vector<testtype> b = {1.2, 3.9, 2.4, 6.4, 2.1, 1.3, 2.1, 7.0, 5.2, -3, 0};
     std::cout << heapSort(a) << std::endl;
+}
+
+int main(){
+    showResult();
+    return 0;
 }
