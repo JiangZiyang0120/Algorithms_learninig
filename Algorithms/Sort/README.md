@@ -10,33 +10,42 @@ Then you can include the sort chunk by the following declaration
 ## Function
 insertionSort
 ```c++
-template <typename T>
-std::vector<T> &insertionSort(std::vector<T> &V);
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &insertionSort(CONT<T> &) ;
 
-template <typename T>
-std::vector<T> &reverseInsertionSort(std::vector<T> &V);
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &reverseInsertionSort(CONT<T> &) ;
 ```
 mergeSort
 ```c++
-template<typename T>
-std::vector<T> &mergeSort(std::vector<T> &A);
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &mergeSort(CONT<T> &);
 
-template<typename T>
-std::vector<T> &reverseMergeSort(std::vector<T> &A);
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &reverseMergeSort(CONT<T> &);
 ```
 heapSort
 ```c++
-template <typename T>
-std::vector<T> &heapSort(std::vector<T> &A);
+template <typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &heapSort(CONT<T> &);
 
-template <typename T>
-std::vector<T> &reverseHeapSort(std::vector<T> &A);
+template <typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &reverseHeapSort(CONT<T> &);
 ```
 quickSort
 ```c++
-template<typename T>
-std::vector<T> &quickSort(std::vector<T> &A);
+//By using random
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &quickSort(CONT<T> &);
 
-template<typename T>
-std::vector<T> &reverseQuickSort(std::vector<T> &A);
+template<typename T,
+template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &reverseQuickSort(CONT<T> &);
 ```
