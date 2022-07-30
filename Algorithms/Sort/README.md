@@ -40,7 +40,7 @@ CONT<T> &reverseHeapSort(CONT<T> &);
 ```
 quickSort
 ```c++
-//By using random
+//By using random sort
 template<typename T,
         template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
 CONT<T> &quickSort(CONT<T> &);
