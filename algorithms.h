@@ -7,4 +7,4 @@
 
 #include "./Algorithms/Sort.h"
 
-#endif //ALGORITHMS_ALGORITHMS_H
+#endif //ALGORITHMS_MAIN_ALGORITHMS_H

@@ -7,8 +7,9 @@
 
 #include "SortHeader.h"
 
-template<typename T>
-std::vector<T> &__orderInsertionSort(std::vector<T> &V) {
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &__orderInsertionSort(CONT<T> &V) {
     size_t length = V.size();
     if (length <= 1) return V;
     for (size_t i = 1; i != length; ++i) {
@@ -25,14 +26,16 @@ std::vector<T> &__orderInsertionSort(std::vector<T> &V) {
 }
 
 
-template <typename T>
-std::vector<T> &insertionSort(std::vector<T> &V){
+template <typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &insertionSort(CONT<T> &V){
     return __orderInsertionSort(V);
 }
 
-template <typename T>
-std::vector<T> &reverseInsertionSort(std::vector<T> &V){
-    std::vector<T> &A = __orderInsertionSort(V);
+template <typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &reverseInsertionSort(CONT<T> &V){
+    CONT<T> &A = __orderInsertionSort(V);
     std::reverse(A.begin(), A.end());
     return A;
 }

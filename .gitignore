@@ -39,3 +39,8 @@ Example/Test/*
 ## File
 main.cpp
 CMakeLists.txt
+/Example/makefile
+/Example/Sort_Example
+/Example/Sort_Example.cpp
+/Example/test
+/Example/test.cpp

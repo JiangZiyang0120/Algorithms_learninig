@@ -7,9 +7,10 @@
 
 #include "SortHeader.h"
 
-template<typename T>
-std::vector<T> &__orderMerge(std::vector<T> &A, size_t p, size_t q, size_t r) {
-    std::vector<T> L, R;
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &__orderMerge(CONT<T> &A, size_t p, size_t q, size_t r) {
+    CONT<T> L, R;
     L.assign(&A[p], &A[q]);
     R.assign(&A[q], &A[r]);
     size_t LSize = q - p, RSize = r - q;
@@ -29,8 +30,9 @@ std::vector<T> &__orderMerge(std::vector<T> &A, size_t p, size_t q, size_t r) {
     return A;
 }
 
-template<typename T>
-std::vector<T> &__orderMergeSort(std::vector<T> &A, size_t p, size_t r) {
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &__orderMergeSort(CONT<T> &A, size_t p, size_t r) {
     if (p < r - 1) {
         size_t q = (p + r) / 2;
         __orderMergeSort(A, p, q);
@@ -40,19 +42,22 @@ std::vector<T> &__orderMergeSort(std::vector<T> &A, size_t p, size_t r) {
     return A;
 }
 
-template<typename T>
-std::vector<T> &__orderMergeSort(std::vector<T> &A) {
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &__orderMergeSort(CONT<T> &A) {
     size_t length = A.size();
     return __orderMergeSort(A, 0, length);
 }
 
-template<typename T>
-std::vector<T> &mergeSort(std::vector<T> &A) {
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &mergeSort(CONT<T> &A) {
     return __orderMergeSort(A);
 }
 
-template<typename T>
-std::vector<T> &reverseMergeSort(std::vector<T> &A) {
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &reverseMergeSort(CONT<T> &A) {
     auto &temp = __orderMergeSort(A);
     std::reverse(temp.begin(), temp.end());
     return temp;

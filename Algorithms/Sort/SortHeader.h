@@ -5,9 +5,11 @@
 #ifndef ALGORITHMS_SORTHEADER_H
 #define ALGORITHMS_SORTHEADER_H
 
-#include "../../Example/Supported_Tools.h"
-#include <vector>
+#include "../../Include/Supported_Tools.h"
 #include <random>
 #include <algorithm>
+#include <cmath>
+#include <utility>
+#include <exception>
 
 #endif //ALGORITHMS_SORTHEADER_H

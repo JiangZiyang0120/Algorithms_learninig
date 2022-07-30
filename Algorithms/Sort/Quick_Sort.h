@@ -7,8 +7,9 @@
 
 #include "SortHeader.h"
 
-template<typename T>
-size_t __partition(std::vector<T> &A, size_t p, size_t r) {
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+size_t __partition(CONT<T> &A, size_t p, size_t r) {
     T x = A[r - 1];
     size_t i = p-1;
     for (size_t j = p; j < r - 1; ++j) {
@@ -25,8 +26,9 @@ size_t __partition(std::vector<T> &A, size_t p, size_t r) {
     return i + 1;
 }
 
-template<typename T>
-size_t __randomPartition(std::vector<T> &A, size_t p, size_t r) {
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+size_t __randomPartition(CONT<T> &A, size_t p, size_t r) {
     std::default_random_engine e;
     std::uniform_int_distribution<unsigned> u(p, r - 1);
     size_t i = u(e);
@@ -36,8 +38,9 @@ size_t __randomPartition(std::vector<T> &A, size_t p, size_t r) {
     return __partition(A, p, r);
 }
 
-template<typename T>
-void __randomQuickSort(std::vector<T> &A, size_t p, size_t r) {
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+void __randomQuickSort(CONT<T> &A, size_t p, size_t r) {
     if (p < r - 1) {
         size_t q = __randomPartition(A, p, r);
         __randomQuickSort(A, p, q);
@@ -45,15 +48,17 @@ void __randomQuickSort(std::vector<T> &A, size_t p, size_t r) {
     }
 }
 
-template<typename T>
-std::vector<T> &quickSort(std::vector<T> &A) {
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &quickSort(CONT<T> &A) {
     size_t length = A.size();
     __randomQuickSort(A, 0, length);
     return A;
 }
 
-template<typename T>
-std::vector<T> &reverseQuickSort(std::vector<T> &A) {
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &reverseQuickSort(CONT<T> &A) {
     quickSort(A);
     std::reverse(A.begin(), A.end());
     return A;

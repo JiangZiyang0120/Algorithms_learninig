@@ -9,5 +9,6 @@
 #include "Sort/Merge_Sort.h"
 #include "Sort/Heap_Sort.h"
 #include "Sort/Quick_Sort.h"
+#include "Sort/Radix_Sort.h"
 
 #endif //ALGORITHMS_SORT_H

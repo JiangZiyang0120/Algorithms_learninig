@@ -19,8 +19,9 @@ inline size_t __right(size_t i) {
     return 2 * i + 1;
 }
 
-template<typename T>
-void __maxHeapify(std::vector<T> &A, size_t i) {
+template<typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+void __maxHeapify(CONT<T> &A, size_t i) {
     size_t l = __left(i + 1) - 1, r = __right(i + 1) - 1, heapSize = A.size();
     size_t largest = (l < heapSize && A[l] > A[i]) ? l : i;
     largest = (r < heapSize && A[r] > A[largest]) ? r : largest;
@@ -32,17 +33,19 @@ void __maxHeapify(std::vector<T> &A, size_t i) {
     }
 }
 
-template <typename T>
-void __buildMaxHeap(std::vector<T> &A){
+template <typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+void __buildMaxHeap(CONT<T> &A){
     size_t heapSize = A.size();
     for (size_t i = heapSize/2 - 1; i != -1; --i)
         __maxHeapify(A,i);
 }
 
-template <typename T>
-std::vector<T> &reverseHeapSort(std::vector<T> &A){
+template <typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &reverseHeapSort(CONT<T> &A){
     __buildMaxHeap(A);
-    std::vector<T> V;
+    CONT<T> V;
     V.reserve(A.size());
     while (A.size() != 1){
         T temp = A[A.size() - 1];
@@ -58,8 +61,9 @@ std::vector<T> &reverseHeapSort(std::vector<T> &A){
     return A;
 }
 
-template <typename T>
-std::vector<T> &heapSort(std::vector<T> &A){
+template <typename T,
+        template <typename ELEM,typename = std::allocator<ELEM> >class CONT=std::vector>
+CONT<T> &heapSort(CONT<T> &A){
     reverseHeapSort(A);
     std::reverse(A.begin(), A.end());
     return A;
