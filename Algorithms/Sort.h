@@ -5,7 +5,14 @@
 #ifndef ALGORITHMS_SORT_H
 #define ALGORITHMS_SORT_H
 
-#include "Sort/SortHeader.h"
+#include <random>
+#include <algorithm>
+#include <cmath>
+#include <utility>
+#include <exception>
+#include <list>
+#include <map>
+#include <memory>
 
 
 class Sort {
