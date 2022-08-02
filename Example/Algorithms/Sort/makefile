@@ -15,5 +15,11 @@ mergeSort:
 quickSort:
 	g++ -o Quick_Sort Quick_Sort.cpp -I ${INCLUDE_PATH}
 
+countingSort:
+	g++ -o Counting_Sort Counting_Sort.cpp -I ${INCLUDE_PATH}
+
+bucketSort:
+	g++ -o Bucket_Sort Bucket_Sort.cpp -I ${INCLUDE_PATH}
+
 clear:
 	-rm -rf *_Sort

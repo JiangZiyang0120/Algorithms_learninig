@@ -1,16 +1,16 @@
 //
-// Created by jiang-ziyang on 22-7-22.
+// Created by jiang-ziyang on 22-7-30.
 //
 
 #include "../../../Include/Sort_Example_Header.h"
 
-void showDefiniteCountingSort(){
-    std::vector<size_t> A = {3,2,6,4,7,5,4,3,1};
-    countingSort(A, *std::max_element(A.begin(),A.end()));
-    std::cout << A << std::endl;
-}
-
 int main(){
-    showDefiniteCountingSort();
-    return 0;
+    std::vector<std::vector<size_t>> A = {
+            {9,3,6},
+            {2,4,1},
+            {5,2,5}
+    };
+    Sort S;
+    S.radixSort(A,0,2,10);
+    std::cout<<A<<std::endl;
 }
