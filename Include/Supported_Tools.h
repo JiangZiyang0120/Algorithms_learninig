@@ -14,7 +14,6 @@
 
 template<typename T>
 std::ostream &operator<<(std::ostream &os,const std::vector<T> &V) {
-    size_t i = 0;
     for (auto iter = V.begin(); iter != V.end(); ++iter) {
         os << *iter << ", ";
     }
@@ -23,7 +22,6 @@ std::ostream &operator<<(std::ostream &os,const std::vector<T> &V) {
 
 template<typename T>
 std::ostream &operator<<(std::ostream &os,const std::vector<T> &&V) {
-    size_t i = 0;
     for (auto iter = V.begin(); iter != V.end(); ++iter) {
         os << *iter << ", ";
     }
@@ -32,7 +30,6 @@ std::ostream &operator<<(std::ostream &os,const std::vector<T> &&V) {
 
 template<typename T>
 std::ostream &operator<<(std::ostream &os,const std::vector<std::vector<T>> &V) {
-    size_t i = 0;
     for (auto iter = V.begin(); iter != V.end(); ++iter) {
         for(auto Viter = iter->begin(); Viter != iter->end(); ++Viter){
             std::cout<<*Viter<<", ";
@@ -44,7 +41,6 @@ std::ostream &operator<<(std::ostream &os,const std::vector<std::vector<T>> &V) 
 
 template<typename T>
 std::ostream &operator<<(std::ostream &os,const std::vector<std::vector<T>> &&V) {
-    size_t i = 0;
     for (auto iter = V.begin(); iter != V.end(); ++iter) {
         for(auto Viter = iter->begin(); Viter != iter->end(); ++Viter){
             std::cout<<*Viter<<", ";

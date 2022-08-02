@@ -10,7 +10,7 @@ int main() {
     std::cout << a << std::endl;
     // heap sort function
     // This function is built by the max-heap principle but also return the default order
-    a = reverseHeapSort<double,std::vector>(a);
+    a = Sort::reverseHeapSort(a);
     std::cout << "The Sorted list (in reverse order) is:" << std::endl;
     std::cout << a << std::endl;
 }

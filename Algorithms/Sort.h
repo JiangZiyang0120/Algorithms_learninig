@@ -18,66 +18,66 @@
 class Sort {
 public:
     template<typename T>
-    std::vector<T> &insertionSort(std::vector<T> &);
+    static std::vector<T> &insertionSort(std::vector<T> &);
 
     template<typename T>
-    std::vector<T> &reverseInsertionSort(std::vector<T> &);
+    static std::vector<T> &reverseInsertionSort(std::vector<T> &);
 
     template<typename T>
-    std::vector<T> &heapSort(std::vector<T> &);
+    static std::vector<T> &heapSort(std::vector<T> &);
 
     template<typename T>
-    std::vector<T> &reverseHeapSort(std::vector<T> &);
+    static std::vector<T> &reverseHeapSort(std::vector<T> &);
 
     template<typename T>
-    std::vector<T> &mergeSort(std::vector<T> &);
+    static std::vector<T> &mergeSort(std::vector<T> &);
 
     template<typename T>
-    std::vector<T> &reverseMergeSort(std::vector<T> &);
+    static std::vector<T> &reverseMergeSort(std::vector<T> &);
 
     template<typename T>
-    std::vector<T> &countingSort(std::vector<T> &, size_t, size_t (*T2size_t)(T) = NULL);
+    static std::vector<T> &countingSort(std::vector<T> &, size_t, size_t (*T2size_t)(T) = NULL);
 
     template<typename T>
-    std::vector<T> &reverseCountingSort(std::vector<T> &, size_t, size_t (*T2size_t)(T) = NULL);
+    static std::vector<T> &reverseCountingSort(std::vector<T> &, size_t, size_t (*T2size_t)(T) = NULL);
 
     template<typename T>
-    std::vector<T> &quickSort(std::vector<T> &);
+    static std::vector<T> &quickSort(std::vector<T> &);
 
     template<typename T>
-    std::vector<T> &reverseQuickSort(std::vector<T> &);
+    static std::vector<T> &reverseQuickSort(std::vector<T> &);
 
     //where beginIndex and endIndex illustrate the column section participate in Sorting
     //column section: [beginIndex, endIndex]
     template<typename T>
-    std::vector<std::vector<T>> &radixSort(std::vector<std::vector<T>> &, size_t beginIndex, size_t endIndex,
+    static std::vector<std::vector<T>> &radixSort(std::vector<std::vector<T>> &, size_t beginIndex, size_t endIndex,
                                            size_t max, size_t (*T2size_t)(T) = NULL);
 
     template<typename T>
-    std::vector<std::vector<T>> &reverseRadixSort(std::vector<std::vector<T>> &, size_t beginIndex, size_t endIndex,
+    static std::vector<std::vector<T>> &reverseRadixSort(std::vector<std::vector<T>> &, size_t beginIndex, size_t endIndex,
                                                   size_t max, size_t (*T2size_t)(T) = NULL);
 
     template<typename T>
-    std::vector<T> &bucketSort(std::vector<T> &, size_t sectionNum, double (*T2Unit)(T) = NULL);
+    static std::vector<T> &bucketSort(std::vector<T> &, size_t sectionNum, double (*T2Unit)(T) = NULL);
 
     template<typename T>
-    std::vector<T> &reverseBucketSort(std::vector<T> &, size_t sectionNum, double (*T2Unit)(T) = NULL);
+    static std::vector<T> &reverseBucketSort(std::vector<T> &, size_t sectionNum, double (*T2Unit)(T) = NULL);
 
 private:
-    inline size_t __parent(size_t i) {
+    inline static  size_t __parent(size_t i) {
         return i / 2;
     }
 
-    inline size_t __left(size_t i) {
+    inline static  size_t __left(size_t i) {
         return 2 * i;
     }
 
-    inline size_t __right(size_t i) {
+    inline static  size_t __right(size_t i) {
         return 2 * i + 1;
     }
 
     template<typename T>
-    void __maxHeapify(std::vector<T> &A, size_t i) {
+    static void __maxHeapify(std::vector<T> &A, size_t i) {
         size_t l = __left(i + 1) - 1, r = __right(i + 1) - 1, heapSize = A.size();
         size_t largest = (l < heapSize && A[l] > A[i]) ? l : i;
         largest = (r < heapSize && A[r] > A[largest]) ? r : largest;
@@ -90,14 +90,14 @@ private:
     }
 
     template<typename T>
-    void __buildMaxHeap(std::vector<T> &A) {
+    void static  __buildMaxHeap(std::vector<T> &A) {
         size_t heapSize = A.size();
         for (size_t i = heapSize / 2 - 1; i != -1; --i)
             __maxHeapify(A, i);
     }
 
     template<typename T>
-    std::vector<T> &__orderMerge(std::vector<T> &A, size_t p, size_t q, size_t r) {
+    static std::vector<T> &__orderMerge(std::vector<T> &A, size_t p, size_t q, size_t r) {
         std::vector<T> L, R;
         L.assign(&A[p], &A[q]);
         R.assign(&A[q], &A[r]);
@@ -119,7 +119,7 @@ private:
     }
 
     template<typename T>
-    std::vector<T> &__orderMergeSort(std::vector<T> &A, size_t p, size_t r) {
+    static std::vector<T> &__orderMergeSort(std::vector<T> &A, size_t p, size_t r) {
         if (p < r - 1) {
             size_t q = (p + r) / 2;
             __orderMergeSort(A, p, q);
@@ -130,7 +130,7 @@ private:
     }
 
     template<typename T>
-    size_t __partition(std::vector<T> &A, size_t p, size_t r) {
+    static size_t __partition(std::vector<T> &A, size_t p, size_t r) {
         T x = A[r - 1];
         size_t i = p - 1;
         for (size_t j = p; j < r - 1; ++j) {
@@ -148,7 +148,7 @@ private:
     }
 
     template<typename T>
-    size_t __randomPartition(std::vector<T> &A, size_t p, size_t r) {
+    static size_t __randomPartition(std::vector<T> &A, size_t p, size_t r) {
         std::default_random_engine e;
         std::uniform_int_distribution<unsigned> u(p, r - 1);
         size_t i = u(e);
@@ -159,7 +159,7 @@ private:
     }
 
     template<typename T>
-    void __randomQuickSort(std::vector<T> &A, size_t p, size_t r) {
+    static void __randomQuickSort(std::vector<T> &A, size_t p, size_t r) {
         if (p < r - 1) {
             size_t q = __randomPartition(A, p, r);
             __randomQuickSort(A, p, q);
@@ -168,7 +168,7 @@ private:
     }
 
     template<typename T>
-    bool judgingForIndex(std::vector<T> &A, std::vector<T> &B, size_t index) {
+    static bool judgingForIndex(std::vector<T> &A, std::vector<T> &B, size_t index) {
         return A[index] < B[index];
     }
 

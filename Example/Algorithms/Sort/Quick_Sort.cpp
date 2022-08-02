@@ -9,7 +9,7 @@ int main() {
     std::vector<double> A = {1.2, 3.9, 2.4, 6.4, 2.1, 1.3, 2.1, 7.0, 5.2, -3, 0};
     std::cout << "The list is:" << std::endl;
     std::cout << A << std::endl;
-    reverseQuickSort(A);
+    Sort::reverseQuickSort(A);
     std::cout << "The Sorted list (in reverse order) is:" << std::endl;
     std::cout << A << std::endl;
 }

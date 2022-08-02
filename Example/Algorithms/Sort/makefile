@@ -1,5 +1,24 @@
 INCLUDE_PATH = "../../../Include/"
 
+ARCH ?=
+CC = $(ARCH)gcc
+SUFFIX = .cpp
+CFLAGS += -Wall -g
+
+CUR_SOURCE = $(wildcard *$(SUFFIX))
+CUR_TARGETS = $(patsubst %$(SUFFIX), %, $(CUR_SOURCE))
+
+all:$(CUR_TARGETS)
+
+# %:%.c 是一个表示与目标相同 文件的模式变量
+$(CUR_TARGETS):%:%$(SUFFIX)
+	$(CC) -o $@ $< I ${INCLUDE_PATH}
+
+# 指定伪目标
+.PHONY:clean all
+clean:
+	-rm -rf $(CUR_TARGETS)
+
 insertionSort:
 	g++ -o Insertion_Sort Insertion_Sort.cpp -I ${INCLUDE_PATH}
 
@@ -20,6 +39,3 @@ countingSort:
 
 bucketSort:
 	g++ -o Bucket_Sort Bucket_Sort.cpp -I ${INCLUDE_PATH}
-
-clear:
-	-rm -rf *_Sort
