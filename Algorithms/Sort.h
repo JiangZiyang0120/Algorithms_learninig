@@ -5,14 +5,7 @@
 #ifndef ALGORITHMS_SORT_H
 #define ALGORITHMS_SORT_H
 
-#include <random>
-#include <algorithm>
-#include <cmath>
-#include <utility>
-#include <exception>
-#include <list>
-#include <map>
-#include <memory>
+#include "Algo_Header.h"
 
 
 class Sort {
@@ -160,10 +153,10 @@ private:
 
     template<typename T>
     static void __randomQuickSort(std::vector<T> &A, size_t p, size_t r) {
-        if (p < r - 1) {
+        if (r-p>1) {
             size_t q = __randomPartition(A, p, r);
             __randomQuickSort(A, p, q);
-            __randomQuickSort(A, q + 1, r);
+             __randomQuickSort(A, q + 1, r);
         }
     }
 

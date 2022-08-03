@@ -1,7 +1,7 @@
 INCLUDE_PATH = "../../../Include/"
 
 ARCH ?=
-CC = $(ARCH)gcc
+CC = $(ARCH)g++
 SUFFIX = .cpp
 CFLAGS += -Wall -g
 
@@ -12,7 +12,7 @@ all:$(CUR_TARGETS)
 
 # %:%.c 是一个表示与目标相同 文件的模式变量
 $(CUR_TARGETS):%:%$(SUFFIX)
-	$(CC) -o $@ $< I ${INCLUDE_PATH}
+	${CC} -o $@ $< -I ${INCLUDE_PATH}
 
 # 指定伪目标
 .PHONY:clean all
