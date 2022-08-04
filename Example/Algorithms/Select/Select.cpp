@@ -6,7 +6,7 @@
 #include "../../../Include/Sort_Example_Header.h"
 
 int main() {
-    std::default_random_engine e;
+    std::default_random_engine e(clock());
     std::uniform_real_distribution<double> u(0, 1);
     size_t length = 10;
     std::vector<double> A;
