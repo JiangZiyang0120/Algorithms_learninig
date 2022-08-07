@@ -58,7 +58,7 @@ private:
 
     template<typename Iterator>
     static Iterator __randomPartition(Iterator begin, Iterator end) {
-        std::default_random_engine e;
+        std::default_random_engine e(time(0));
         size_t interval = end - begin;
         std::uniform_int_distribution<unsigned> u(0, interval - 1);
         Iterator i = u(e) + begin;

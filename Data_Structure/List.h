@@ -61,6 +61,15 @@ public:
         insert(rs);
     }
 
+    ~List(){
+        for(class Node<T> *pointer = tail; pointer != head;){
+            auto temp = pointer;
+            pointer = pointer->prevNode;
+            delete temp;
+        }
+        delete head;
+    }
+
     class Node<T> *search(T);
 
     void insert(T);

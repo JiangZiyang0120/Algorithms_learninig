@@ -142,7 +142,7 @@ private:
 
     template<typename T>
     static size_t __randomPartition(std::vector<T> &A, size_t p, size_t r) {
-        std::default_random_engine e;
+        std::default_random_engine e(time(0));
         std::uniform_int_distribution<unsigned> u(p, r - 1);
         size_t i = u(e);
         T temp = A[r - 1];

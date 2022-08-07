@@ -17,12 +17,3 @@ $(CUR_TARGETS):%:%$(SUFFIX)
 .PHONY:clean all
 clean:
 	-rm -rf $(CUR_TARGETS)
-
-queue:
-	g++ -o Queue Queue.cpp -I ${INCLUDE_PATH}
-
-stack:
-	g++ -o Stack Stack.cpp -I ${INCLUDE_PATH}
-
-list:
-	g++ -o List List.cpp -I ${INCLUDE_PATH}
