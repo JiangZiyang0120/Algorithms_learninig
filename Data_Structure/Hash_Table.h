@@ -17,8 +17,8 @@ class HashTableOpeningAddress {
 public:
     HashTableOpeningAddress(size_t size, time_t theSeed,
                             size_t (*theHashFunction)(size_t m, T k, time_t theSeed),
-                            size_t (*theProbeFunction)(size_t m, T k, size_t i)):
-            HashTableOpeningAddress(size, theSeed, theHashFunction), probeFunction(theProbeFunction) {}
+                            size_t (*theProbeFunction)(size_t m, T k, size_t i)) :
+            HashTableOpeningAddress(theSeed, theHashFunction), probeFunction(theProbeFunction) {}
 
     HashTableOpeningAddress(size_t size, time_t theSeed,
                             size_t (*function)(size_t m, T k, time_t theSeed)) :
@@ -40,12 +40,18 @@ public:
 
     void insert(T k);
 
+    size_t search(T k);
+
+    void remove(T k);
+
+    T &operator[](size_t);
+
 private:
-    size_t linearProbing(size_t m, T k, size_t i);
+    size_t linearProbing(T k, size_t i);
 
-    size_t quadraticProbing(size_t m, T k, size_t i);
+    size_t quadraticProbing(T k, size_t i);
 
-    size_t doubleHashing(size_t m, T k, size_t i);
+    size_t doubleHashing(T k, size_t i);
 
 private:
     const size_t tableSize;
@@ -58,35 +64,67 @@ private:
 
     size_t (*const hashFunction)(size_t m, T k, time_t theSeed);
 
-    size_t (*const probeFunction)(size_t m, T k, size_t i) = doubleHashing;
+    size_t (*const probeFunction)(T k, size_t i) = doubleHashing;
 };
 
 template<typename T>
-size_t HashTableOpeningAddress<T>::linearProbing(size_t m, T k, size_t i) {
-    return Hash<T>::linearProbing(m, k, i, this->seed, this->hashFunction);
+size_t HashTableOpeningAddress<T>::linearProbing(T k, size_t i) {
+    return Hash<T>::linearProbing(this->tableSize, k, i, this->seed, this->hashFunction);
 }
 
 template<typename T>
-size_t HashTableOpeningAddress<T>::quadraticProbing(size_t m, T k, size_t i) {
-    return Hash<T>::quadraticProbing(m, k, i, this->seed, this->c1, this->c2, this->hashFunction);
+size_t HashTableOpeningAddress<T>::quadraticProbing(T k, size_t i) {
+    return Hash<T>::quadraticProbing(this->tableSize, k, i, this->seed, this->c1, this->c2, this->hashFunction);
 }
 
 template<typename T>
-size_t HashTableOpeningAddress<T>::doubleHashing(size_t m, T k, size_t i) {
-    return Hash<T>::doubleHashing(m, k, i, this->seed1, this->doubleSeed, this->hashFunction, this->hashFunction);
+size_t HashTableOpeningAddress<T>::doubleHashing(T k, size_t i) {
+    return Hash<T>::doubleHashing(this->tableSize, k, i, this->seed1, this->doubleSeed, this->hashFunction,
+                                  this->hashFunction);
 }
 
 template<typename T>
 void HashTableOpeningAddress<T>::insert(T k) {
     size_t i = 0;
-    size_t dictation = this->probeFunction(this->tableSize,k,i),index = dictation;
+    size_t dictation = this->probeFunction(this->tableSize, k, i), index = dictation;
     do {
-        if(this->statusTable[index] == NIL || this->statusTable == DELETED) {
+        if (this->statusTable[index] == NIL || this->statusTable == DELETED) {
             this->hashTable[index] = k;
+            this->statusTable[index] = FILLED;
             return;
         }
-    } while ((index = this->probeFunction(this->tableSize,k,++i))!=dictation);
+    } while ((index = this->probeFunction(this->tableSize, k, ++i)) != dictation);
     throw std::overflow_error("hash table overflow");
 }
+
+template<typename T>
+size_t HashTableOpeningAddress<T>::search(T k) {
+    size_t i = 0, index;
+    //add 1 to prevent the case that index = 0
+    while ((index = this->probeFunction(k, i)) + 1 || this->statusTable[index] != NIL) {
+        if (this->hashTable[index] == k)
+            return index;
+    }
+    return NIL;
+}
+
+template <typename T>
+void HashTableOpeningAddress<T>::remove(T k) {
+    auto index = search(k);
+    if(index != NIL){
+        this->statusTable[index] = DELETED;
+        return;
+    }
+    throw std::runtime_error("element doesn't exist");
+}
+
+template<typename T>
+T &HashTableOpeningAddress<T>::operator[](size_t index) {
+    if(this->statusTable[index] == FILLED)
+        return this->hashTable[index];
+    return this->statusTable[index];
+}
+
+
 
 #endif //MAIN_CPP_HASH_TABLE_H
