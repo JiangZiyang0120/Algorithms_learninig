@@ -26,6 +26,8 @@ public:
 
     static largeInt getPrimeNum(largeInt min = MIN_LIMIT, largeInt max = MAX_LIMIT);
 
+    static size_t getSizeTPrimeNum(size_t min = MIN_LIMIT, size_t max = MAX_LIMIT);
+
 private:
     static largeInt mod_mul(largeInt, largeInt, largeInt);
 
@@ -79,8 +81,18 @@ bool PrimeNum::millerRabin(largeInt x) {
 
 largeInt PrimeNum::getPrimeNum(largeInt min, largeInt max) {
     std::default_random_engine e(time(0));
-    std::uniform_int_distribution<unsigned> u(min, max);
+    std::uniform_int_distribution<largeInt> u(min, max);
     largeInt temp = u(e), digit = (temp % 2) ? temp : temp + 1;
+    auto functionPinter = digit > DIGIT_BOUNDARY ? millerRabin : circularlyJudged;
+    while (!functionPinter(digit))
+        digit += 2;
+    return digit;
+}
+
+size_t PrimeNum::getSizeTPrimeNum(size_t min, size_t max) {
+    std::default_random_engine e(time(0));
+    std::uniform_int_distribution<size_t> u(min, max);
+    size_t temp = u(e), digit = (temp % 2) ? temp : temp + 1;
     auto functionPinter = digit > DIGIT_BOUNDARY ? millerRabin : circularlyJudged;
     while (!functionPinter(digit))
         digit += 2;

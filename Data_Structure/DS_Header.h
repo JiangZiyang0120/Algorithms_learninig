@@ -10,5 +10,6 @@
 #include <list>
 #include <stdexcept>
 #include <iostream>
+#include <functional>
 
 #endif //MAIN_CPP_DS_HEADER_H

@@ -5,38 +5,96 @@
 #ifndef MAIN_CPP_HASH_TABLE_H
 #define MAIN_CPP_HASH_TABLE_H
 
-#include "../Algorithms/Algo_Header.h"
+#include "DS_Header.h"
 #include "../Algorithms/Hash.h"
+#include "../Algorithms/Prime_Num.h"
+
+#define AS_PROBE_FUNCTOR(functor) [this](size_t m,T k, size_t i) { return functor(m,k, i); }
+#define AS_HASH_FUNCTOR(functor) [this]( size_t m,T k) { return functor(m, k); }
 
 enum status {
     NIL, DELETED, FILLED
 };
 
 template<typename T>
-class HashTableOpeningAddress {
+class HashFactor {
 public:
-    HashTableOpeningAddress(size_t size, time_t theSeed,
-                            size_t (*theHashFunction)(size_t m, T k, time_t theSeed),
-                            size_t (*theProbeFunction)(size_t m, T k, size_t i)) :
-            HashTableOpeningAddress(theSeed, theHashFunction), probeFunction(theProbeFunction) {}
+    HashFactor(std::string handle, double mul, size_t primeNum, size_t aNum, size_t bNum) :
+            mulFactor(mul), prime(primeNum), a(aNum), b(bNum) {
+        hashFunction = this->hashFunctionMap[handle];
+    }
 
-    HashTableOpeningAddress(size_t size, time_t theSeed,
-                            size_t (*function)(size_t m, T k, time_t theSeed)) :
-            tableSize(size), elemNum(0), hashTable(new T[tableSize]), statusTable(new status[tableSize]),
-            hashFunction(function), seed(theSeed), doubleSeed(static_cast<time_t>(seed * 3.2 / 2.7)) {}
+    HashFactor(std::string handle = "universalHashing") :
+            mulFactor(MULTI_FACTOR), prime(PrimeNum::getSizeTPrimeNum()) {
+        std::default_random_engine e(time(0));
+        std::uniform_int_distribution<size_t> _a(1, prime - 1), _b(0, prime - 1);
+        a = _a(e);
+        b = _b(e);
+        hashFunction = this->hashFunctionMap[handle];
+    }
 
-    HashTableOpeningAddress(size_t size, time_t theSeed) : HashTableOpeningAddress(size, theSeed,
-                                                                                   Hash<T>::universalHashing) {}
+    size_t divisionHashing(size_t m, T k);
 
-    HashTableOpeningAddress(size_t size, size_t (*function)(size_t m, T k, time_t theSeed)) :
-            HashTableOpeningAddress(size, time(0), function) {}
+    size_t multiplicativeHashing(size_t m, T k);
 
-    HashTableOpeningAddress(size_t size) : HashTableOpeningAddress(size, time(0), Hash<T>::universalHashing) {}
+    size_t universalHashing(size_t m, T k);
 
-    HashTableOpeningAddress(size_t size, double var1, double var2) : HashTableOpeningAddress(size, time(0),
-                                                                                             Hash<T>::quadraticProbing),
-                                                                     c1(var1), c2(var2),
-                                                                     probeFunction(quadraticProbing) {}
+    std::function<size_t(size_t, T)> hashFunction;
+private:
+    const double mulFactor;
+    const size_t prime;
+    size_t a, b;
+
+    std::map<std::string, std::function<size_t(size_t, T)>> hashFunctionMap = {
+            {"divisionHashing",       AS_HASH_FUNCTOR(divisionHashing)},
+            {"multiplicativeHashing", AS_HASH_FUNCTOR(multiplicativeHashing)},
+            {"universalHashing",      AS_HASH_FUNCTOR(universalHashing)}
+    };
+};
+
+
+template<typename T>
+class ProbeFactor {
+public:
+    ProbeFactor(std::string probeHandle, std::string hashHandle1 = "universalHashing",
+                std::string hashHandle2 = "universalHashing", double c1Num = 2, double c2Num = 5) :
+            hash1(hashHandle1), hash2(hashHandle2), c1(c1Num), c2(c2Num) {
+        probeFunction = this->probeFunctionMap[probeHandle];
+    }
+
+    size_t linearProbing(size_t m, T k, size_t i);
+
+    size_t quadraticProbing(size_t m, T k, size_t i);
+
+    size_t doubleHashing(size_t m, T k, size_t i);
+
+    std::function<size_t(size_t, T, size_t)> probeFunction;
+private:
+    const double c1, c2;
+    HashFactor<T> const hash1, hash2;
+
+    std::map<std::string, std::function<size_t(size_t, T, size_t)>> probeFunctionMap = {
+            {"linearProbing",    AS_PROBE_FUNCTOR(linearProbing)},
+            {"quadraticProbing", AS_PROBE_FUNCTOR(quadraticProbing)},
+            {"doubleHashing",    AS_PROBE_FUNCTOR(doubleHashing)}
+    };
+};
+
+template<typename T>
+class HashTableOpeningAddress : private ProbeFactor<T> {
+    template<typename NAME>
+    friend std::ostream &operator<<(std::ostream &os, HashTableOpeningAddress<NAME> &H);
+
+    template<typename NAME>
+    friend std::ostream &operator<<(std::ostream &os, HashTableOpeningAddress<NAME> &&H);
+
+public:
+    HashTableOpeningAddress(size_t size,
+                            std::string probeFunctionHandle = "doubleHashing",
+                            std::string hashHandle1 = "universalHashing",
+                            std::string hashHandle2 = "universalHashing") :
+            tableSize(size), elemNum(0), hashTable(new T[this->tableSize]), statusTable(new status[this->tableSize]),
+            ProbeFactor<T>(probeFunctionHandle, hashHandle1, hashHandle2) {}
 
     void insert(T k);
 
@@ -47,50 +105,57 @@ public:
     T &operator[](size_t);
 
 private:
-    size_t linearProbing(T k, size_t i);
-
-    size_t quadraticProbing(T k, size_t i);
-
-    size_t doubleHashing(T k, size_t i);
-
-private:
     const size_t tableSize;
     size_t elemNum;
     T *hashTable;
     status *statusTable;
-    const time_t seed;
-    const time_t doubleSeed;
-    const double c1 = 2, c2 = 3;
-
-    size_t (*const hashFunction)(size_t m, T k, time_t theSeed);
-
-    size_t (*const probeFunction)(T k, size_t i) = doubleHashing;
 };
 
+// class HashFactor's member functions' complement
 template<typename T>
-size_t HashTableOpeningAddress<T>::linearProbing(T k, size_t i) {
-    return Hash<T>::linearProbing(this->tableSize, k, i, this->seed, this->hashFunction);
+size_t HashFactor<T>::divisionHashing(size_t m, T k) {
+    return Hash<T>::divisionHashing(m, k);
 }
 
 template<typename T>
-size_t HashTableOpeningAddress<T>::quadraticProbing(T k, size_t i) {
-    return Hash<T>::quadraticProbing(this->tableSize, k, i, this->seed, this->c1, this->c2, this->hashFunction);
+size_t HashFactor<T>::multiplicativeHashing(size_t m, T k) {
+    return Hash<T>::multiplicativeHashing(m, k, this->mulFactor);
+}
+
+
+template<typename T>
+size_t HashFactor<T>::universalHashing(size_t m, T k) {
+    return Hash<T>::universalHashing(m, k, this->prime, this->a, this->b);
+}
+
+// class ProbeFactor's member functions' complement
+template<typename T>
+size_t ProbeFactor<T>::linearProbing(size_t m, T k, size_t i) {
+    return (this->hash1.hashFunction(m, k) + i) % m;
 }
 
 template<typename T>
-size_t HashTableOpeningAddress<T>::doubleHashing(T k, size_t i) {
-    return Hash<T>::doubleHashing(this->tableSize, k, i, this->seed1, this->doubleSeed, this->hashFunction,
-                                  this->hashFunction);
+size_t ProbeFactor<T>::quadraticProbing(size_t m, T k, size_t i) {
+    return static_cast<size_t>((this->hash1.hashFunction(m, k) + this->c1 * i + this->c2 * i * i)) % m;
 }
 
+template<typename T>
+size_t ProbeFactor<T>::doubleHashing(size_t m, T k, size_t i) {
+    return (this->hash1.hashFunction(m, k) + i * this->hash2.hashFunction(m, k)) % m;
+}
+
+// class HashTable's member functions' complement
 template<typename T>
 void HashTableOpeningAddress<T>::insert(T k) {
+    if (search(k) != NIL)
+        return;
     size_t i = 0;
     size_t dictation = this->probeFunction(this->tableSize, k, i), index = dictation;
     do {
-        if (this->statusTable[index] == NIL || this->statusTable == DELETED) {
+        if (this->statusTable[index] == NIL || this->statusTable[index] == DELETED) {
             this->hashTable[index] = k;
             this->statusTable[index] = FILLED;
+            ++(this->elemNum);
             return;
         }
     } while ((index = this->probeFunction(this->tableSize, k, ++i)) != dictation);
@@ -99,20 +164,21 @@ void HashTableOpeningAddress<T>::insert(T k) {
 
 template<typename T>
 size_t HashTableOpeningAddress<T>::search(T k) {
-    size_t i = 0, index;
-    //add 1 to prevent the case that index = 0
-    while ((index = this->probeFunction(k, i)) + 1 || this->statusTable[index] != NIL) {
+    size_t i = 0, index = this->probeFunction(this->tableSize, k, i);
+    while (this->statusTable[index] != NIL) {
         if (this->hashTable[index] == k)
             return index;
+        index = this->probeFunction(this->tableSize, k, ++i);
     }
     return NIL;
 }
 
-template <typename T>
+template<typename T>
 void HashTableOpeningAddress<T>::remove(T k) {
     auto index = search(k);
-    if(index != NIL){
+    if (index != NIL) {
         this->statusTable[index] = DELETED;
+        --this->elemNum;
         return;
     }
     throw std::runtime_error("element doesn't exist");
@@ -120,11 +186,27 @@ void HashTableOpeningAddress<T>::remove(T k) {
 
 template<typename T>
 T &HashTableOpeningAddress<T>::operator[](size_t index) {
-    if(this->statusTable[index] == FILLED)
+    if (this->statusTable[index] == FILLED)
         return this->hashTable[index];
     return this->statusTable[index];
 }
 
+template<typename T>
+std::ostream &operator<<(std::ostream &os, HashTableOpeningAddress<T> &H) {
+    for (size_t i = 0; i != H.tableSize; ++i) {
+        if (H.statusTable[i] == FILLED)
+            os << H.hashTable[i] << ", ";
+    }
+    return os;
+}
 
+template<typename T>
+std::ostream &operator<<(std::ostream &os, HashTableOpeningAddress<T> &&H) {
+    for (size_t i = 0; i != H.tableSize; ++i) {
+        if (H.statusTable[i] == FILLED)
+            os << H.hashTable[i] << ", ";
+    }
+    return os;
+}
 
 #endif //MAIN_CPP_HASH_TABLE_H
