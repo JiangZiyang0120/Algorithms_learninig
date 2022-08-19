@@ -16,21 +16,21 @@ enum status {
     NIL, DELETED, FILLED
 };
 
+
 template<typename T>
 class HashFactor {
 public:
     HashFactor(std::string handle, double mul, size_t primeNum, size_t aNum, size_t bNum) :
-            mulFactor(mul), prime(primeNum), a(aNum), b(bNum) {
-        hashFunction = this->hashFunctionMap[handle];
+            hashFunction(this->hashFunctionMap[handle]), mulFactor(mul), prime(primeNum), a(aNum), b(bNum) {
+
     }
 
     HashFactor(std::string handle = "universalHashing") :
-            mulFactor(MULTI_FACTOR), prime(PrimeNum::getSizeTPrimeNum()) {
+            hashFunction(this->hashFunctionMap[handle]), mulFactor(MULTI_FACTOR), prime(PrimeNum::getSizeTPrimeNum()) {
         std::default_random_engine e(time(0));
         std::uniform_int_distribution<size_t> _a(1, prime - 1), _b(0, prime - 1);
         a = _a(e);
         b = _b(e);
-        hashFunction = this->hashFunctionMap[handle];
     }
 
     size_t divisionHashing(size_t m, T k);
@@ -39,7 +39,6 @@ public:
 
     size_t universalHashing(size_t m, T k);
 
-    std::function<size_t(size_t, T)> hashFunction;
 private:
     const double mulFactor;
     const size_t prime;
@@ -50,6 +49,9 @@ private:
             {"multiplicativeHashing", AS_HASH_FUNCTOR(multiplicativeHashing)},
             {"universalHashing",      AS_HASH_FUNCTOR(universalHashing)}
     };
+
+public:
+    std::function<size_t(size_t, T)> hashFunction;
 };
 
 
@@ -68,7 +70,6 @@ public:
 
     size_t doubleHashing(size_t m, T k, size_t i);
 
-    std::function<size_t(size_t, T, size_t)> probeFunction;
 private:
     const double c1, c2;
     HashFactor<T> const hash1, hash2;
@@ -78,6 +79,8 @@ private:
             {"quadraticProbing", AS_PROBE_FUNCTOR(quadraticProbing)},
             {"doubleHashing",    AS_PROBE_FUNCTOR(doubleHashing)}
     };
+public:
+    std::function<size_t(size_t, T, size_t)> probeFunction;
 };
 
 template<typename T>
@@ -87,7 +90,6 @@ class HashTableOpeningAddress : private ProbeFactor<T> {
 
     template<typename NAME>
     friend std::ostream &operator<<(std::ostream &os, HashTableOpeningAddress<NAME> &&H);
-
 public:
     HashTableOpeningAddress(size_t size,
                             std::string probeFunctionHandle = "doubleHashing",
@@ -103,6 +105,8 @@ public:
     void remove(T k);
 
     T &operator[](size_t);
+
+    double loadFactor();
 
 private:
     const size_t tableSize;
@@ -192,6 +196,12 @@ T &HashTableOpeningAddress<T>::operator[](size_t index) {
 }
 
 template<typename T>
+double HashTableOpeningAddress<T>::loadFactor() {
+    return 1.0 * this->elemNum / this->tableSize;
+}
+
+
+template<typename T>
 std::ostream &operator<<(std::ostream &os, HashTableOpeningAddress<T> &H) {
     for (size_t i = 0; i != H.tableSize; ++i) {
         if (H.statusTable[i] == FILLED)
@@ -208,5 +218,6 @@ std::ostream &operator<<(std::ostream &os, HashTableOpeningAddress<T> &&H) {
     }
     return os;
 }
+
 
 #endif //MAIN_CPP_HASH_TABLE_H

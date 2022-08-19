@@ -11,5 +11,6 @@
 #include <stdexcept>
 #include <iostream>
 #include <functional>
+#include <memory>
 
 #endif //MAIN_CPP_DS_HEADER_H
