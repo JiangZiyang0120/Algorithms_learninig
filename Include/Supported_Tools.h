@@ -6,6 +6,7 @@
 #define ALGORITHMS_SUPPORTED_TOOLS_H
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 
 /*

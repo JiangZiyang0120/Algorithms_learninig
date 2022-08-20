@@ -3,6 +3,7 @@
 //
 
 
+#include <fstream>
 #include "../../Data_Structure/Tree.h"
 #include "../../Include/Supported_Tools.h"
 
@@ -24,12 +25,20 @@ void testNode() {
 void testTree(){
     Tree<double,3> T;
     T.setRoot(3.976);
-    std::cout<<T.getDepth()<<std::endl;
     T.setData(2.768,2,0);
-    std::cout<<T.getDepth()<<std::endl;
+    T.setData(12.365,2,1);
     T.setData(-3.142,3,2);
+    T.setData(3.124,3,3);
+    T.setData(4.132,3,5);
     T.setData(2.514,4,6);
-    std::cout<<T.getDepth()<<std::endl;
+    T.setData(3.245,4,16);
+    std::ofstream openFile;
+    std::string fileName = "data.json";
+    openFile.open(fileName);
+    openFile<<T<<std::endl;
+    std::cout<<fileName<<" is written successfully"<<std::endl;
+    system("pytm-cli -i data.json -t 3");
+    system("firefox ./TreeMap.html");
 }
 
 int main() {

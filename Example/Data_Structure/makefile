@@ -3,10 +3,11 @@ INCLUDE_PATH = "../../../Include/"
 ARCH ?=
 CC = $(ARCH)g++
 SUFFIX = .cpp
+OTHERFIX = .html
 CFLAGS += -Wall -g
 
 CUR_SOURCE = $(wildcard *$(SUFFIX))
-CUR_TARGETS = $(patsubst %$(SUFFIX), %, $(CUR_SOURCE))
+CUR_TARGETS = $(patsubst %$(SUFFIX), %, $(CUR_SOURCE)) + $(wildcard *$(OTHERFIX))
 
 all:$(CUR_TARGETS)
 

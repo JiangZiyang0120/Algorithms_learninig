@@ -14,12 +14,15 @@ class Tree;
 
 
 template<typename T, size_t ChildNum>
-class Node : public std::enable_shared_from_this<Node<T,ChildNum>> {
+class Node : public std::enable_shared_from_this<Node<T, ChildNum>> {
     template<typename thisT, size_t thisChildNum>
     friend std::ostream &operator<<(std::ostream &os, Node<thisT, thisChildNum> &node);
 
     template<typename thisT, size_t thisChildNum>
     friend std::ostream &operator<<(std::ostream &os, Node<thisT, thisChildNum> &&node);
+
+    template<typename thisT, size_t thisChildNum>
+    friend std::string node2json(std::shared_ptr<Node<thisT, thisChildNum>> nodePointer, size_t tire);
 
 public:
     Node() : child(new std::shared_ptr<Node<T, ChildNum>>[ChildNum]) {}
@@ -101,7 +104,7 @@ std::shared_ptr<Node<T, ChildNum>> Node<T, ChildNum>::getChild(size_t index) {
 
 template<typename T, size_t ChildNum>
 std::shared_ptr<Node<T, ChildNum>> Node<T, ChildNum>::getParent() {
-    return std::shared_ptr<Node<T,ChildNum>>(parent);
+    return std::shared_ptr<Node<T, ChildNum>>(parent);
 }
 
 template<typename T, size_t ChildNum>
@@ -127,13 +130,19 @@ using BinaryTree = Tree<T, 2>;
 
 template<typename T, size_t ChildNum>
 class Tree {
+    template<typename thisT, size_t thisChildNum>
+    friend std::ofstream &operator<<(std::ofstream &output, Tree<thisT,thisChildNum> &Tr);
+
+    template<typename thisT, size_t thisChildNum>
+    friend std::ostream &operator<<(std::ostream &os, Tree<thisT, thisChildNum> &Tr);
+
 public:
     Tree() {}
 
     Tree(T x) : root(std::make_shared<Node<T, ChildNum>>(x)) {}
 
     template<typename Iterator>
-    Tree<T, ChildNum>(Iterator begin, Iterator end): Tree<T, ChildNum>(){
+    Tree<T, ChildNum>(Iterator begin, Iterator end): Tree<T, ChildNum>() {
         Queue<Node<T, ChildNum> *> thisQueue((end - begin) / ChildNum + 1);
         root = std::make_unique<Node<T, ChildNum>>(*(begin++));
         thisQueue.enroll(root);
@@ -157,21 +166,22 @@ public:
 
     void setData(T x, size_t depth, size_t index);
 
-    void setRoot(std::shared_ptr<Node<T, ChildNum>> node){
-        setData(node,1,0);
+    void setRoot(std::shared_ptr<Node<T, ChildNum>> node) {
+        setData(node, 1, 0);
     }
 
-    void setRoot(T x){
-        setData(x,1,0);
+    void setRoot(T x) {
+        setData(x, 1, 0);
     }
 
     size_t getDepth();
 
     BinaryTree<T> &&Tree2BinaryTree();
 
-private:
+public:
     std::shared_ptr<Node<T, ChildNum>> root;
 
+private:
     void Tree2BinaryTree(Node<T, 2> *BTPointer, Node<T, ChildNum> *pointer);
 
     void getDepth(std::shared_ptr<Node<T, ChildNum>> pointer, size_t depth, size_t *maxDepth);
@@ -195,12 +205,12 @@ void Tree<T, ChildNum>::setData(std::shared_ptr<Node<T, ChildNum>> node, size_t 
             node->copyChild(pointer);
         root = node;
         return;
-    } else if(depth == 2){
-        if(!root)
+    } else if (depth == 2) {
+        if (!root)
             throw std::runtime_error("No valid trace to the node");
-        if(root->getChild(index) && !root->getChild(index)->isNoneChild())
+        if (root->getChild(index) && !root->getChild(index)->isNoneChild())
             node->copyChild(root->getChild(index));
-        root->setChild(node,index);
+        root->setChild(node, index);
         return;
     }
     Stack<size_t> childStack;
@@ -275,6 +285,47 @@ void Tree<T, ChildNum>::Tree2BinaryTree(Node<T, 2> *BTPointer, Node<T, ChildNum>
             Tree2BinaryTree(BTPointer, pointer);
         }
     }
+}
+
+inline std::string repeatString(size_t tier, std::string &&str) {
+    std::string returnStr;
+    for (size_t i = 0; i != tier; ++i)
+        returnStr.insert(returnStr.end(), str.begin(), str.end());
+    return std::move(returnStr);
+}
+
+template<typename T, size_t ChildNum>
+std::string node2json(std::shared_ptr<Node<T, ChildNum>> nodePointer, size_t tier) {
+    std::string str;
+    str += repeatString(tier - 1, "\t") + "{\n";
+    if (nodePointer->isNoneChild())
+        str += repeatString(tier, "\t") + "\"children\": [],\n";
+    else {
+        str += repeatString(tier, "\t") + "\"children\": [\n";
+        bool isFirstChild = true;
+        for (size_t i = 0; i != ChildNum; ++i)
+            if (nodePointer->getChild(i)) {
+                str += (isFirstChild? "":",\n");
+                str += node2json(nodePointer->getChild(i), tier + 2);
+                isFirstChild = false;
+            }
+        str += "\n" + repeatString(tier, "\t") + "],\n";
+    }
+    str += repeatString(tier, "\t") + "\"name\": \"" + std::to_string(nodePointer->data) + "\"\n";
+    str += repeatString(tier - 1, "\t") + "}";
+    return str;
+}
+
+template<typename T, size_t ChildNum>
+std::ofstream &operator<<(std::ofstream &output,Tree<T,ChildNum> &Tr) {
+    output << node2json(Tr.root, 1);
+    return output;
+}
+
+
+template<typename T, size_t ChildNum>
+std::ostream &operator<<(std::ostream &os, Tree<T, ChildNum> &Tr) {
+    return os << node2json(Tr.root, 1);
 }
 
 #endif //MAIN_CPP_TREE_H
