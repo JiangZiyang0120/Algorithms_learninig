@@ -3,11 +3,10 @@ INCLUDE_PATH = "../../../Include/"
 ARCH ?=
 CC = $(ARCH)g++
 SUFFIX = .cpp
-OTHERFIX = .html
 CFLAGS += -Wall -g
 
 CUR_SOURCE = $(wildcard *$(SUFFIX))
-CUR_TARGETS = $(patsubst %$(SUFFIX), %, $(CUR_SOURCE)) + $(wildcard *$(OTHERFIX))
+CUR_TARGETS = $(patsubst %$(SUFFIX), %, $(CUR_SOURCE))
 
 all:$(CUR_TARGETS)
 
@@ -18,6 +17,7 @@ $(CUR_TARGETS):%:%$(SUFFIX)
 .PHONY:clean all
 clean:
 	-rm -rf $(CUR_TARGETS)
+	-rm -rf $(wildcard *.html *.json)
 
 queue:
 	g++ -o Queue Queue.cpp -I ${INCLUDE_PATH}
