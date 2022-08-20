@@ -16,10 +16,6 @@ public:
 
     Stack(size_t size) : Sequence<T>(size), top(0) {}
 
-//    template<T,
-//            template<typename = T, typename = std::allocator<T>> class CONT>
-//    Stack<T>(CONT<T> const &A):Sequence<T>(A), top(A.size()) {}
-
     bool empty();
 
     void push(T const &);
