@@ -51,10 +51,28 @@ void testTree(){
     system("firefox ./TreeMap.html");
 }
 
+void testWalk(){
+    std::vector<char> vec({'A','B','C','D','E','F','G','H','I','J','K','L','M','N'});
+    BinaryTree<char> T(vec.begin(),vec.end());
+    std::ofstream openFile;
+    std::string fileName = "data.json";
+    openFile.open(fileName);
+    openFile<<T<<std::endl;
+    openFile.close();
+    std::cout<<fileName<<" is written successfully"<<std::endl;
+    system("pytm-cli -i data.json -t 1");
+    system("firefox ./TreeMap.html");
+    std::cout<<"preorderTreeWalk:\n"<<T.preorderTreeWalk()<<"\n"<<std::endl;
+    std::cout<<"inorderTreeWalk:\n"<<T.inorderTreeWalk()<<"\n"<<std::endl;
+    std::cout<<"postorderTreeWalk:\n"<<T.postorderTreeWalk()<<"\n"<<std::endl;
+}
+
 int main() {
     std::cout<<"Test of Node\n-----------------------------------\n"<<std::endl;
     testNode();
     std::cout<<"Test of Tree\n-----------------------------------\n"<<std::endl;
     testTree();
+    std::cout<<"Test of Walk\n-----------------------------------\n"<<std::endl;
+    testWalk();
     return 0;
 }

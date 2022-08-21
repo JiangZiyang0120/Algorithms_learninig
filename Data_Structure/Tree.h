@@ -16,7 +16,7 @@ template<typename T, size_t ChildNum, class Leaves>
 class Tree;
 
 template<typename T, class Leaves = Node<T, 2>>
-using BinaryTree = Tree<T, 2, Leaves>;
+class BinaryTree;
 
 template<typename T, size_t ChildNum>
 class Node : public std::enable_shared_from_this<Node<T, ChildNum>> {
@@ -148,7 +148,7 @@ public:
 
     template<typename Iterator>
     Tree(Iterator begin, Iterator end): Tree() {
-        Queue<std::weak_ptr<Leaves>> thisQueue((end - begin) / ChildNum * (ChildNum-1) + 2);
+        Queue<std::weak_ptr<Leaves>> thisQueue((end - begin) / ChildNum * (ChildNum - 1) + 2);
         root = std::make_shared<Leaves>(*(begin++));
         thisQueue.enroll(root);
         std::shared_ptr<Leaves> pointer;
@@ -184,6 +184,7 @@ public:
     BinaryTree<T> Tree2BinaryTree();
 
     std::weak_ptr<Leaves> getRoot();
+
 
 private:
     void Tree2BinaryTree(std::shared_ptr<Node<T, 2>> BTPointer, std::shared_ptr<Leaves> pointer);
@@ -260,7 +261,7 @@ void Tree<T, ChildNum, Leaves>::getDepth(std::shared_ptr<Leaves> pointer, size_t
 
 template<typename T, size_t ChildNum, class Leaves>
 size_t Tree<T, ChildNum, Leaves>::getDepth() {
-    size_t *maxDepth = new size_t(0);
+    auto *maxDepth = new size_t(0);
     getDepth(root, 1, maxDepth);
     size_t depth = *maxDepth;
     delete maxDepth;
@@ -284,7 +285,7 @@ Tree<T, ChildNum, Leaves>::Tree2BinaryTree(std::shared_ptr<Node<T, 2>> BTPointer
     size_t i = 0;
     for (; i != ChildNum; ++i) {
         if (pointer->getChild(i)) {
-            BTPointer->setChild(pointer->getChild(i)->getData(),0);
+            BTPointer->setChild(pointer->getChild(i)->getData(), 0);
             Tree2BinaryTree(BTPointer->getChild(0), pointer->getChild(i));
             BTPointer = BTPointer->getChild(0);
             ++i;
@@ -293,7 +294,7 @@ Tree<T, ChildNum, Leaves>::Tree2BinaryTree(std::shared_ptr<Node<T, 2>> BTPointer
     }
     for (; i != ChildNum; ++i) {
         if (pointer->getChild(i)) {
-            BTPointer->setChild(pointer->getChild(i)->getData(),1);
+            BTPointer->setChild(pointer->getChild(i)->getData(), 1);
             Tree2BinaryTree(BTPointer->getChild(1), pointer->getChild(i));
             BTPointer = BTPointer->getChild(1);
         }
@@ -326,7 +327,7 @@ std::string node2json(std::shared_ptr<Node<T, ChildNum>> nodePointer, size_t tie
                 oss << (isFirstChild ? "" : ",\n");
                 oss << node2json(nodePointer->getChild(i), tier + 2);
                 isFirstChild = false;
-            } else{
+            } else {
                 oss << (isFirstChild ? "" : ",\n");
                 oss << repeatString(tier + 1, "\t") << "{\n";
                 oss << repeatString(tier + 2, "\t") << "\"children\": [],\n";
@@ -351,6 +352,84 @@ std::ofstream &operator<<(std::ofstream &output, Tree<T, ChildNum, Leaves> &Tr) 
 template<typename T, size_t ChildNum, class Leaves>
 std::ostream &operator<<(std::ostream &os, Tree<T, ChildNum, Leaves> &Tr) {
     return os << node2json(Tr.root, 1);
+}
+
+template<typename T, class Leaves>
+class BinaryTree : public Tree<T, 2, Leaves> {
+public:
+    BinaryTree() : Tree<T, 2, Leaves>() {};
+
+    explicit BinaryTree(T x) : Tree<T, 2, Leaves>(x) {}
+
+    template<typename Iterator>
+    BinaryTree(Iterator begin, Iterator end): Tree<T, 2, Leaves>(begin, end) {}
+
+    std::string preorderTreeWalk();
+
+    std::string inorderTreeWalk();
+
+    std::string postorderTreeWalk();
+
+private:
+    std::string preorderTreeWalk(std::shared_ptr<Leaves> pointer);
+
+    std::string inorderTreeWalk(std::shared_ptr<Leaves> pointer);
+
+    std::string postorderTreeWalk(std::shared_ptr<Leaves> pointer);
+};
+
+template<typename T, class Leaves>
+std::string BinaryTree<T, Leaves>::preorderTreeWalk(std::shared_ptr<Leaves> pointer) {
+    std::ostringstream oss;
+    oss << *pointer << ",";
+    if (pointer->getLeftChild())
+        oss << preorderTreeWalk(pointer->getLeftChild());
+    if (pointer->getRightChild())
+        oss << preorderTreeWalk(pointer->getRightChild());
+    return oss.str();
+}
+
+template<typename T, class Leaves>
+std::string BinaryTree<T, Leaves>::preorderTreeWalk() {
+    std::string str = std::move(this->preorderTreeWalk(this->getRoot().lock()));
+    str.substr(0, str.size() - 1);
+    return str;
+}
+
+template<typename T, class Leaves>
+std::string BinaryTree<T, Leaves>::inorderTreeWalk(std::shared_ptr<Leaves> pointer) {
+    std::ostringstream oss;
+    if (pointer->getLeftChild())
+        oss << inorderTreeWalk(pointer->getLeftChild());
+    oss << *pointer << ",";
+    if (pointer->getRightChild())
+        oss << inorderTreeWalk(pointer->getRightChild());
+    return oss.str();
+}
+
+template<typename T, class Leaves>
+std::string BinaryTree<T, Leaves>::inorderTreeWalk() {
+    std::string str = std::move(this->inorderTreeWalk(this->getRoot().lock()));
+    str.substr(0, str.size() - 2);
+    return str;
+}
+
+template<typename T, class Leaves>
+std::string BinaryTree<T, Leaves>::postorderTreeWalk(std::shared_ptr<Leaves> pointer) {
+    std::ostringstream oss;
+    if (pointer->getLeftChild())
+        oss << postorderTreeWalk(pointer->getLeftChild());
+    if (pointer->getRightChild())
+        oss << postorderTreeWalk(pointer->getRightChild());
+    oss << *pointer << ",";
+    return oss.str();
+}
+
+template<typename T, class Leaves>
+std::string BinaryTree<T, Leaves>::postorderTreeWalk() {
+    std::string str = std::move(this->postorderTreeWalk(this->getRoot().lock()));
+    str.substr(0, str.size() - 2);
+    return str;
 }
 
 #endif //MAIN_CPP_TREE_H
