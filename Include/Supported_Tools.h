@@ -13,7 +13,7 @@
  * A function to output the vector with iostream
  */
 
-template<typename T>
+template <typename T>
 std::ostream &operator<<(std::ostream &os,const std::vector<T> &V) {
     for (auto iter = V.begin(); iter != V.end(); ++iter) {
         os << *iter << ", ";

@@ -28,7 +28,7 @@ public:
 //            template<typename = T, typename =std::allocator<T>> class CONT>
 //    Queue(CONT<T> const &A): Sequence<T>(A), head(0), tail(0), length(A.size()) {}
 
-    void enroll(T const &);
+    void enroll(T);
 
     T eject();
 
@@ -38,11 +38,11 @@ private:
         if (rs != 0)
             --rs;
         else
-            rs = this->arraySize;
+            rs = this->arraySize-1;
     }
 
     void add(size_t &rs) {
-        if (rs != this->arraySize)
+        if (rs != this->arraySize-1)
             ++rs;
         else
             rs = 0;
@@ -55,7 +55,7 @@ private:
 };
 
 template<typename T>
-void Queue<T>::enroll(const T &a) {
+void Queue<T>::enroll(T a) {
     if (this->length == this->arraySize)
         throw std::overflow_error("The queue is overflow");
     this->array[this->head] = a;

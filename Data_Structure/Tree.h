@@ -10,24 +10,20 @@
 #include "Queue.h"
 
 template<typename T, size_t ChildNum>
+class Node;
+
+template<typename T, size_t ChildNum, class Leaves>
 class Tree;
 
+template<typename T, class Leaves = Node<T, 2>>
+using BinaryTree = Tree<T, 2, Leaves>;
 
 template<typename T, size_t ChildNum>
 class Node : public std::enable_shared_from_this<Node<T, ChildNum>> {
-    template<typename thisT, size_t thisChildNum>
-    friend std::ostream &operator<<(std::ostream &os, Node<thisT, thisChildNum> &node);
-
-    template<typename thisT, size_t thisChildNum>
-    friend std::ostream &operator<<(std::ostream &os, Node<thisT, thisChildNum> &&node);
-
-    template<typename thisT, size_t thisChildNum>
-    friend std::string node2json(std::shared_ptr<Node<thisT, thisChildNum>> nodePointer, size_t tire);
-
 public:
     Node() : child(new std::shared_ptr<Node<T, ChildNum>>[ChildNum]) {}
 
-    Node(T x) : data(x), child(new std::shared_ptr<Node<T, ChildNum>>[ChildNum]) {}
+    explicit Node(T x) : data(x), child(new std::shared_ptr<Node<T, ChildNum>>[ChildNum]) {}
 
     void setData(T x);
 
@@ -43,6 +39,10 @@ public:
 
     std::shared_ptr<Node<T, ChildNum>> getChild(size_t index);
 
+    std::shared_ptr<Node<T, ChildNum>> getLeftChild();
+
+    std::shared_ptr<Node<T, ChildNum>> getRightChild();
+
     std::shared_ptr<Node<T, ChildNum>> getParent();
 
     bool isNoneChild();
@@ -57,7 +57,6 @@ private:
 template<typename T, size_t ChildNum>
 void Node<T, ChildNum>::setData(T x) {
     data = x;
-    return;
 }
 
 template<typename T, size_t ChildNum>
@@ -76,7 +75,6 @@ void Node<T, ChildNum>::setChild(std::shared_ptr<Node<T, ChildNum>> childPointer
         throw std::overflow_error("The index is over the child's number");
     child[index] = childPointer;
     childPointer->parent = this->shared_from_this();
-    return;
 }
 
 template<typename T, size_t ChildNum>
@@ -103,6 +101,16 @@ std::shared_ptr<Node<T, ChildNum>> Node<T, ChildNum>::getChild(size_t index) {
 }
 
 template<typename T, size_t ChildNum>
+std::shared_ptr<Node<T, ChildNum>> Node<T, ChildNum>::getLeftChild() {
+    return child[0];
+}
+
+template<typename T, size_t ChildNum>
+std::shared_ptr<Node<T, ChildNum>> Node<T, ChildNum>::getRightChild() {
+    return child[ChildNum - 1];
+}
+
+template<typename T, size_t ChildNum>
 std::shared_ptr<Node<T, ChildNum>> Node<T, ChildNum>::getParent() {
     return std::shared_ptr<Node<T, ChildNum>>(parent);
 }
@@ -117,39 +125,36 @@ bool Node<T, ChildNum>::isNoneChild() {
 
 template<typename T, size_t ChildNum>
 std::ostream &operator<<(std::ostream &os, Node<T, ChildNum> &node) {
-    return os << node.data;
+    return os << node.getData();
 }
 
 template<typename T, size_t ChildNum>
 std::ostream &operator<<(std::ostream &os, Node<T, ChildNum> &&node) {
-    return os << node.data;
+    return os << node.getData();
 }
 
-template<typename T>
-using BinaryTree = Tree<T, 2>;
-
-template<typename T, size_t ChildNum>
+template<typename T, size_t ChildNum, class Leaves = Node<T, ChildNum>>
 class Tree {
-    template<typename thisT, size_t thisChildNum>
-    friend std::ofstream &operator<<(std::ofstream &output, Tree<thisT,thisChildNum> &Tr);
+    template<typename thisT, size_t thisChildNum, class thisLeaves>
+    friend std::ofstream &operator<<(std::ofstream &output, Tree<thisT, thisChildNum, thisLeaves> &Tr);
 
-    template<typename thisT, size_t thisChildNum>
-    friend std::ostream &operator<<(std::ostream &os, Tree<thisT, thisChildNum> &Tr);
+    template<typename thisT, size_t thisChildNum, class thisLeaves>
+    friend std::ostream &operator<<(std::ostream &os, Tree<thisT, thisChildNum, thisLeaves> &Tr);
 
 public:
-    Tree() {}
+    Tree() = default;
 
-    Tree(T x) : root(std::make_shared<Node<T, ChildNum>>(x)) {}
+    explicit Tree(T x) : root(std::make_shared<Leaves>(x)) {}
 
     template<typename Iterator>
-    Tree<T, ChildNum>(Iterator begin, Iterator end): Tree<T, ChildNum>() {
-        Queue<Node<T, ChildNum> *> thisQueue((end - begin) / ChildNum + 1);
-        root = std::make_unique<Node<T, ChildNum>>(*(begin++));
+    Tree(Iterator begin, Iterator end): Tree() {
+        Queue<std::weak_ptr<Leaves>> thisQueue((end - begin) / ChildNum * (ChildNum-1) + 2);
+        root = std::make_shared<Leaves>(*(begin++));
         thisQueue.enroll(root);
-        Node<T, ChildNum> *pointer;
-        for (;;) {
-            pointer = thisQueue.eject();
-            for (size_t i = 0; i != 3 && begin != end; ++i, ++begin) {
+        std::shared_ptr<Leaves> pointer;
+        for (; begin != end;) {
+            pointer = thisQueue.eject().lock();
+            for (size_t i = 0; i != ChildNum && begin != end; ++i, ++begin) {
                 pointer->setChild(*begin, i);
                 thisQueue.enroll(pointer->getChild(i));
             }
@@ -162,11 +167,11 @@ public:
     std::pair<std::pair<size_t, size_t>, size_t> getParent(size_t depth, size_t index);
 
     //This index is a complete tree's index of the $(depth) layer
-    void setData(std::shared_ptr<Node<T, ChildNum>> node, size_t depth, size_t index);
+    void setData(std::shared_ptr<Leaves> node, size_t depth, size_t index);
 
     void setData(T x, size_t depth, size_t index);
 
-    void setRoot(std::shared_ptr<Node<T, ChildNum>> node) {
+    void setRoot(std::shared_ptr<Leaves> node) {
         setData(node, 1, 0);
     }
 
@@ -176,28 +181,29 @@ public:
 
     size_t getDepth();
 
-    BinaryTree<T> &&Tree2BinaryTree();
+    BinaryTree<T> Tree2BinaryTree();
 
-public:
-    std::shared_ptr<Node<T, ChildNum>> root;
+    std::weak_ptr<Leaves> getRoot();
 
 private:
-    void Tree2BinaryTree(Node<T, 2> *BTPointer, Node<T, ChildNum> *pointer);
+    void Tree2BinaryTree(std::shared_ptr<Node<T, 2>> BTPointer, std::shared_ptr<Leaves> pointer);
 
-    void getDepth(std::shared_ptr<Node<T, ChildNum>> pointer, size_t depth, size_t *maxDepth);
+    void getDepth(std::shared_ptr<Leaves> pointer, size_t depth, size_t *maxDepth);
+
+    std::shared_ptr<Leaves> root;
 };
 
 
-template<typename T, size_t ChildNum>
-std::pair<std::pair<size_t, size_t>, size_t> Tree<T, ChildNum>::getParent(size_t depth, size_t index) {
+template<typename T, size_t ChildNum, class Leaves>
+std::pair<std::pair<size_t, size_t>, size_t> Tree<T, ChildNum, Leaves>::getParent(size_t depth, size_t index) {
     size_t parentIndex = index / ChildNum;
     size_t childIndex = index % ChildNum;
     return std::pair<std::pair<size_t, size_t>, size_t>(std::pair<size_t, size_t>(depth - 1, parentIndex), childIndex);
 }
 
-template<typename T, size_t ChildNum>
-void Tree<T, ChildNum>::setData(std::shared_ptr<Node<T, ChildNum>> node, size_t depth, size_t index) {
-    std::shared_ptr<Node<T, ChildNum>> pointer = root;
+template<typename T, size_t ChildNum, class Leaves>
+void Tree<T, ChildNum, Leaves>::setData(std::shared_ptr<Leaves> node, size_t depth, size_t index) {
+    std::shared_ptr<Leaves> pointer = root;
     if (depth == 1) {
         if (index != 0)
             throw std::overflow_error("The index is over the child's number");
@@ -227,18 +233,17 @@ void Tree<T, ChildNum>::setData(std::shared_ptr<Node<T, ChildNum>> node, size_t 
     if (pointer->getChild(childIndex) && !pointer->getChild(childIndex)->isNoneChild())
         node->copyChild(pointer->getChild(childIndex));
     pointer->setChild(node, childIndex);
-    return;
 }
 
 
-template<typename T, size_t ChildNum>
-void Tree<T, ChildNum>::setData(T x, size_t depth, size_t index) {
-    std::shared_ptr<Node<T, ChildNum>> node(std::make_shared<Node<T, ChildNum>>(x));
+template<typename T, size_t ChildNum, class Leaves>
+void Tree<T, ChildNum, Leaves>::setData(T x, size_t depth, size_t index) {
+    std::shared_ptr<Leaves> node(std::make_shared<Leaves>(x));
     setData(node, depth, index);
 }
 
-template<typename T, size_t ChildNum>
-void Tree<T, ChildNum>::getDepth(std::shared_ptr<Node<T, ChildNum>> pointer, size_t depth, size_t *maxDepth) {
+template<typename T, size_t ChildNum, class Leaves>
+void Tree<T, ChildNum, Leaves>::getDepth(std::shared_ptr<Leaves> pointer, size_t depth, size_t *maxDepth) {
     if (depth > *maxDepth)
         *maxDepth = depth;
     if (pointer->isNoneChild())
@@ -253,8 +258,8 @@ void Tree<T, ChildNum>::getDepth(std::shared_ptr<Node<T, ChildNum>> pointer, siz
     }
 }
 
-template<typename T, size_t ChildNum>
-size_t Tree<T, ChildNum>::getDepth() {
+template<typename T, size_t ChildNum, class Leaves>
+size_t Tree<T, ChildNum, Leaves>::getDepth() {
     size_t *maxDepth = new size_t(0);
     getDepth(root, 1, maxDepth);
     size_t depth = *maxDepth;
@@ -262,29 +267,42 @@ size_t Tree<T, ChildNum>::getDepth() {
     return depth;
 }
 
-template<typename T, size_t ChildNum>
-BinaryTree<T> &&Tree<T, ChildNum>::Tree2BinaryTree() {
+template<typename T, size_t ChildNum, class Leaves>
+BinaryTree<T> Tree<T, ChildNum, Leaves>::Tree2BinaryTree() {
     BinaryTree<T> BT(this->root->getData());
-    auto BTPointer = BT.root;
+    auto BTPointer = BT.getRoot();
     auto pointer = this->root;
-    Tree2BinaryTree(BTPointer, pointer);
+    Tree2BinaryTree(BTPointer.lock(), pointer);
     return BT;
 }
 
-template<typename T, size_t ChildNum>
-void Tree<T, ChildNum>::Tree2BinaryTree(Node<T, 2> *BTPointer, Node<T, ChildNum> *pointer) {
+template<typename T, size_t ChildNum, class Leaves>
+void
+Tree<T, ChildNum, Leaves>::Tree2BinaryTree(std::shared_ptr<Node<T, 2>> BTPointer, std::shared_ptr<Leaves> pointer) {
     if (pointer->isNoneChild())
         return;
-    bool isFirstChild = true;
-    for (size_t i = 0; i != ChildNum; ++i) {
+    size_t i = 0;
+    for (; i != ChildNum; ++i) {
         if (pointer->getChild(i)) {
-            pointer = pointer->getChild(i);
-            BTPointer->setChild(pointer->getData(), (isFirstChild) ? 0 : 1);
-            BTPointer = BTPointer->getChild((isFirstChild) ? 0 : 1);
-            isFirstChild = false;
-            Tree2BinaryTree(BTPointer, pointer);
+            BTPointer->setChild(pointer->getChild(i)->getData(),0);
+            Tree2BinaryTree(BTPointer->getChild(0), pointer->getChild(i));
+            BTPointer = BTPointer->getChild(0);
+            ++i;
+            break;
         }
     }
+    for (; i != ChildNum; ++i) {
+        if (pointer->getChild(i)) {
+            BTPointer->setChild(pointer->getChild(i)->getData(),1);
+            Tree2BinaryTree(BTPointer->getChild(1), pointer->getChild(i));
+            BTPointer = BTPointer->getChild(1);
+        }
+    }
+}
+
+template<typename T, size_t ChildNum, class Leaves>
+std::weak_ptr<Leaves> Tree<T, ChildNum, Leaves>::getRoot() {
+    return std::weak_ptr<Leaves>(root);
 }
 
 inline std::string repeatString(size_t tier, std::string &&str) {
@@ -296,35 +314,42 @@ inline std::string repeatString(size_t tier, std::string &&str) {
 
 template<typename T, size_t ChildNum>
 std::string node2json(std::shared_ptr<Node<T, ChildNum>> nodePointer, size_t tier) {
-    std::string str;
-    str += repeatString(tier - 1, "\t") + "{\n";
+    std::ostringstream oss;
+    oss << repeatString(tier - 1, "\t") << "{\n";
     if (nodePointer->isNoneChild())
-        str += repeatString(tier, "\t") + "\"children\": [],\n";
+        oss << repeatString(tier, "\t") << "\"children\": [],\n";
     else {
-        str += repeatString(tier, "\t") + "\"children\": [\n";
+        oss << repeatString(tier, "\t") << "\"children\": [\n";
         bool isFirstChild = true;
         for (size_t i = 0; i != ChildNum; ++i)
             if (nodePointer->getChild(i)) {
-                str += (isFirstChild? "":",\n");
-                str += node2json(nodePointer->getChild(i), tier + 2);
+                oss << (isFirstChild ? "" : ",\n");
+                oss << node2json(nodePointer->getChild(i), tier + 2);
+                isFirstChild = false;
+            } else{
+                oss << (isFirstChild ? "" : ",\n");
+                oss << repeatString(tier + 1, "\t") << "{\n";
+                oss << repeatString(tier + 2, "\t") << "\"children\": [],\n";
+                oss << repeatString(tier + 2, "\t") << R"("name": ")" << "None" << "\"\n";
+                oss << repeatString(tier + 1, "\t") << "}";
                 isFirstChild = false;
             }
-        str += "\n" + repeatString(tier, "\t") + "],\n";
+        oss << "\n" << repeatString(tier, "\t") << "],\n";
     }
-    str += repeatString(tier, "\t") + "\"name\": \"" + std::to_string(nodePointer->data) + "\"\n";
-    str += repeatString(tier - 1, "\t") + "}";
-    return str;
+    oss << repeatString(tier, "\t") << R"("name": ")" << nodePointer->getData() << "\"\n";
+    oss << repeatString(tier - 1, "\t") << "}";
+    return oss.str();
 }
 
-template<typename T, size_t ChildNum>
-std::ofstream &operator<<(std::ofstream &output,Tree<T,ChildNum> &Tr) {
+template<typename T, size_t ChildNum, class Leaves>
+std::ofstream &operator<<(std::ofstream &output, Tree<T, ChildNum, Leaves> &Tr) {
     output << node2json(Tr.root, 1);
     return output;
 }
 
 
-template<typename T, size_t ChildNum>
-std::ostream &operator<<(std::ostream &os, Tree<T, ChildNum> &Tr) {
+template<typename T, size_t ChildNum, class Leaves>
+std::ostream &operator<<(std::ostream &os, Tree<T, ChildNum, Leaves> &Tr) {
     return os << node2json(Tr.root, 1);
 }
 

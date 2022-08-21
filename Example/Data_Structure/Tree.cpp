@@ -23,21 +23,31 @@ void testNode() {
 
 
 void testTree(){
-    Tree<double,3> T;
-    T.setRoot(3.976);
-    T.setData(2.768,2,0);
-    T.setData(12.365,2,1);
-    T.setData(-3.142,3,2);
-    T.setData(3.124,3,3);
-    T.setData(4.132,3,5);
-    T.setData(2.514,4,6);
-    T.setData(3.245,4,16);
+//    Tree<std::string ,3> T;
+//    T.setRoot("A");
+//    T.setData("B",2,0);
+//    T.setData("C",2,1);
+//    T.setData("D",3,2);
+//    T.setData("E",3,3);
+//    T.setData("F",3,5);
+//    T.setData("G",4,6);
+//    T.setData("H",4,16);
     std::ofstream openFile;
     std::string fileName = "data.json";
+    std::vector<char> vec({'A','B','C','D','E','F','G','H','I','J','K','L','M','N'});
+    Tree<char,3> T(vec.begin(),vec.end());
     openFile.open(fileName);
     openFile<<T<<std::endl;
+    openFile.close();
     std::cout<<fileName<<" is written successfully"<<std::endl;
-    system("pytm-cli -i data.json -t 3");
+    system("pytm-cli -i data.json -t 1");
+    system("firefox ./TreeMap.html");
+    auto T2 = T.Tree2BinaryTree();
+    openFile.open(fileName);
+    openFile<<T2<<std::endl;
+    openFile.close();
+    std::cout<<fileName<<" is written successfully"<<std::endl;
+    system("pytm-cli -i data.json -t 1");
     system("firefox ./TreeMap.html");
 }
 

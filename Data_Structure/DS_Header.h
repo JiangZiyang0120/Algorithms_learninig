@@ -12,5 +12,6 @@
 #include <iostream>
 #include <functional>
 #include <memory>
+#include <sstream>
 
 #endif //MAIN_CPP_DS_HEADER_H
