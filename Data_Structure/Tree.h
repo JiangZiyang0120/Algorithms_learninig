@@ -33,7 +33,15 @@ public:
 
     void setChild(std::shared_ptr<Node<T, ChildNum>> childPointer, size_t index);
 
-    void setChild(const T x, size_t index);
+    void setChild(T x, size_t index);
+
+    void setLeftChild(std::shared_ptr<Node<T, ChildNum>> childPointer);
+
+    void setLeftChild(T x);
+
+    void setRightChild(std::shared_ptr<Node<T, ChildNum>> childPointer);
+
+    void setRightChild(T x);
 
     void copyChild(std::shared_ptr<Node<T, ChildNum>> pointer);
 
@@ -50,7 +58,7 @@ public:
 private:
     T data;
     std::unique_ptr<std::shared_ptr<Node<T, ChildNum>>[]> child;
-    std::weak_ptr<Node<T, ChildNum>> parent;
+    std::shared_ptr<Node<T, ChildNum>> parent;
 };
 
 
@@ -74,17 +82,37 @@ void Node<T, ChildNum>::setChild(std::shared_ptr<Node<T, ChildNum>> childPointer
     if (index >= ChildNum)
         throw std::overflow_error("The index is over the child's number");
     child[index] = childPointer;
-    childPointer->parent = this->shared_from_this();
+    if(childPointer)
+        childPointer->parent = this->shared_from_this();
 }
 
 template<typename T, size_t ChildNum>
-void Node<T, ChildNum>::setChild(const T x, size_t index) {
+void Node<T, ChildNum>::setChild(T x, size_t index) {
     if (index >= ChildNum)
         throw std::overflow_error("The index is over the child's number");
     std::shared_ptr<Node<T, ChildNum>> pointer(std::make_shared<Node<T, ChildNum>>(x));
     setChild(pointer, index);
 }
 
+template<typename T, size_t ChildNum>
+void Node<T, ChildNum>::setLeftChild(std::shared_ptr<Node<T, ChildNum>> childPointer) {
+    setChild(childPointer, 0);
+}
+
+template<typename T, size_t ChildNum>
+void Node<T, ChildNum>::setLeftChild(T x) {
+    setChild(x, 0);
+}
+
+template<typename T, size_t ChildNum>
+void Node<T, ChildNum>::setRightChild(std::shared_ptr<Node<T, ChildNum>> childPointer) {
+    setChild(childPointer, ChildNum - 1);
+}
+
+template<typename T, size_t ChildNum>
+void Node<T, ChildNum>::setRightChild(T x) {
+    setChild(x, ChildNum - 1);
+}
 
 template<typename T, size_t ChildNum>
 void Node<T, ChildNum>::copyChild(std::shared_ptr<Node<T, ChildNum>> pointer) {
@@ -183,7 +211,7 @@ public:
 
     BinaryTree<T> Tree2BinaryTree();
 
-    std::weak_ptr<Leaves> getRoot();
+    std::shared_ptr<Leaves> getRoot();
 
 
 private:
@@ -273,7 +301,7 @@ BinaryTree<T> Tree<T, ChildNum, Leaves>::Tree2BinaryTree() {
     BinaryTree<T> BT(this->root->getData());
     auto BTPointer = BT.getRoot();
     auto pointer = this->root;
-    Tree2BinaryTree(BTPointer.lock(), pointer);
+    Tree2BinaryTree(BTPointer, pointer);
     return BT;
 }
 
@@ -302,8 +330,8 @@ Tree<T, ChildNum, Leaves>::Tree2BinaryTree(std::shared_ptr<Node<T, 2>> BTPointer
 }
 
 template<typename T, size_t ChildNum, class Leaves>
-std::weak_ptr<Leaves> Tree<T, ChildNum, Leaves>::getRoot() {
-    return std::weak_ptr<Leaves>(root);
+std::shared_ptr<Leaves> Tree<T, ChildNum, Leaves>::getRoot() {
+    return root;
 }
 
 inline std::string repeatString(size_t tier, std::string &&str) {
@@ -391,7 +419,7 @@ std::string BinaryTree<T, Leaves>::preorderTreeWalk(std::shared_ptr<Leaves> poin
 
 template<typename T, class Leaves>
 std::string BinaryTree<T, Leaves>::preorderTreeWalk() {
-    std::string str = std::move(this->preorderTreeWalk(this->getRoot().lock()));
+    std::string str = std::move(this->preorderTreeWalk(this->getRoot()));
     str.substr(0, str.size() - 1);
     return str;
 }
@@ -409,7 +437,7 @@ std::string BinaryTree<T, Leaves>::inorderTreeWalk(std::shared_ptr<Leaves> point
 
 template<typename T, class Leaves>
 std::string BinaryTree<T, Leaves>::inorderTreeWalk() {
-    std::string str = std::move(this->inorderTreeWalk(this->getRoot().lock()));
+    std::string str = std::move(this->inorderTreeWalk(this->getRoot()));
     str.substr(0, str.size() - 2);
     return str;
 }
@@ -427,7 +455,7 @@ std::string BinaryTree<T, Leaves>::postorderTreeWalk(std::shared_ptr<Leaves> poi
 
 template<typename T, class Leaves>
 std::string BinaryTree<T, Leaves>::postorderTreeWalk() {
-    std::string str = std::move(this->postorderTreeWalk(this->getRoot().lock()));
+    std::string str = std::move(this->postorderTreeWalk(this->getRoot()));
     str.substr(0, str.size() - 2);
     return str;
 }

@@ -51,4 +51,23 @@ std::ostream &operator<<(std::ostream &os,const std::vector<std::vector<T>> &&V)
     return os;
 }
 
+
+template <class TreeClass>
+void printTree(std::ofstream &ofs, std::string &fileName,TreeClass &TC){
+    if(ofs)
+        ofs.close();
+    ofs.open(fileName);
+    ofs<<TC<<std::endl;
+    ofs.close();
+    system("pytm-cli -i data.json -t 1");
+    system("firefox ./TreeMap.html");
+}
+
+template <class TreeClass>
+void printTree(TreeClass &TC){
+    std::string fileName = "data.json";
+    std::ofstream ofs;
+    printTree(ofs,fileName,TC);
+}
+
 #endif //ALGORITHMS_SUPPORTED_TOOLS_H

@@ -4,4 +4,4 @@ A template lib of data structures and algorithms of book Introduction to Algorit
 
 ## Status
 This lib will be aperiodically updated. And I'll maintain this lib since **six months after the time when it will be finished**.
-I have already finished four sorting algorithms in the first 8 chapters. And I'm keeping completing other algorithms.
+I have already finished four sorting algorithms in the first 12 chapters. And I'm keeping completing other algorithms.
