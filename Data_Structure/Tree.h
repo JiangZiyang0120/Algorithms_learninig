@@ -29,19 +29,21 @@ public:
 
     T getData();
 
-    Node<T, ChildNum> *getPointer();
+    std::shared_ptr<Node<T, ChildNum>> getPointer();
 
-    void setChild(std::shared_ptr<Node<T, ChildNum>> childPointer, size_t index);
+    virtual void setChild(std::shared_ptr<Node<T, ChildNum>> childPointer, size_t index);
 
-    void setChild(T x, size_t index);
+    virtual void setChild(T x, size_t index);
 
-    void setLeftChild(std::shared_ptr<Node<T, ChildNum>> childPointer);
+    virtual void setLeftChild(std::shared_ptr<Node<T, ChildNum>> childPointer);
 
-    void setLeftChild(T x);
+    virtual void setLeftChild(T x);
 
-    void setRightChild(std::shared_ptr<Node<T, ChildNum>> childPointer);
+    virtual void setRightChild(std::shared_ptr<Node<T, ChildNum>> childPointer);
 
-    void setRightChild(T x);
+    virtual void setRightChild(T x);
+
+    void setParentNULL();
 
     void copyChild(std::shared_ptr<Node<T, ChildNum>> pointer);
 
@@ -55,7 +57,9 @@ public:
 
     bool isNoneChild();
 
-private:
+    virtual std::string node2json(size_t tier);
+
+protected:
     T data;
     std::unique_ptr<std::shared_ptr<Node<T, ChildNum>>[]> child;
     std::shared_ptr<Node<T, ChildNum>> parent;
@@ -73,8 +77,8 @@ T Node<T, ChildNum>::getData() {
 }
 
 template<typename T, size_t ChildNum>
-Node<T, ChildNum> *Node<T, ChildNum>::getPointer() {
-    return this;
+std::shared_ptr<Node<T, ChildNum>> Node<T, ChildNum>::getPointer() {
+    return this->shared_from_this();
 }
 
 template<typename T, size_t ChildNum>
@@ -82,7 +86,7 @@ void Node<T, ChildNum>::setChild(std::shared_ptr<Node<T, ChildNum>> childPointer
     if (index >= ChildNum)
         throw std::overflow_error("The index is over the child's number");
     child[index] = childPointer;
-    if(childPointer)
+    if (childPointer)
         childPointer->parent = this->shared_from_this();
 }
 
@@ -112,6 +116,11 @@ void Node<T, ChildNum>::setRightChild(std::shared_ptr<Node<T, ChildNum>> childPo
 template<typename T, size_t ChildNum>
 void Node<T, ChildNum>::setRightChild(T x) {
     setChild(x, ChildNum - 1);
+}
+
+template<typename T, size_t ChildNum>
+void Node<T, ChildNum>::setParentNULL() {
+    parent = NULL;
 }
 
 template<typename T, size_t ChildNum>
@@ -149,6 +158,35 @@ bool Node<T, ChildNum>::isNoneChild() {
         if (child[i])
             return false;
     return true;
+}
+
+template<typename T, size_t ChildNum>
+std::string Node<T, ChildNum>::node2json(size_t tier) {
+    std::ostringstream oss;
+    oss << repeatString(tier - 1, "\t") << "{\n";
+    if (isNoneChild())
+        oss << repeatString(tier, "\t") << "\"children\": [],\n";
+    else {
+        oss << repeatString(tier, "\t") << "\"children\": [\n";
+        bool isFirstChild = true;
+        for (size_t i = 0; i != ChildNum; ++i)
+            if (getChild(i)) {
+                oss << (isFirstChild ? "" : ",\n");
+                oss << getChild(i)->node2json(tier + 2);
+                isFirstChild = false;
+            } else {
+                oss << (isFirstChild ? "" : ",\n");
+                oss << repeatString(tier + 1, "\t") << "{\n";
+                oss << repeatString(tier + 2, "\t") << "\"children\": [],\n";
+                oss << repeatString(tier + 2, "\t") << R"("name": ")" << "None" << "\"\n";
+                oss << repeatString(tier + 1, "\t") << "}";
+                isFirstChild = false;
+            }
+        oss << "\n" << repeatString(tier, "\t") << "],\n";
+    }
+    oss << repeatString(tier, "\t") << R"("name": ")" << getData() << "\"\n";
+    oss << repeatString(tier - 1, "\t") << "}";
+    return oss.str();
 }
 
 template<typename T, size_t ChildNum>
@@ -200,7 +238,8 @@ public:
     void setData(T x, size_t depth, size_t index);
 
     void setRoot(std::shared_ptr<Leaves> node) {
-        setData(node, 1, 0);
+        root = node;
+        node->setParentNULL();
     }
 
     void setRoot(T x) {
@@ -334,52 +373,16 @@ std::shared_ptr<Leaves> Tree<T, ChildNum, Leaves>::getRoot() {
     return root;
 }
 
-inline std::string repeatString(size_t tier, std::string &&str) {
-    std::string returnStr;
-    for (size_t i = 0; i != tier; ++i)
-        returnStr.insert(returnStr.end(), str.begin(), str.end());
-    return std::move(returnStr);
-}
-
-template<typename T, size_t ChildNum>
-std::string node2json(std::shared_ptr<Node<T, ChildNum>> nodePointer, size_t tier) {
-    std::ostringstream oss;
-    oss << repeatString(tier - 1, "\t") << "{\n";
-    if (nodePointer->isNoneChild())
-        oss << repeatString(tier, "\t") << "\"children\": [],\n";
-    else {
-        oss << repeatString(tier, "\t") << "\"children\": [\n";
-        bool isFirstChild = true;
-        for (size_t i = 0; i != ChildNum; ++i)
-            if (nodePointer->getChild(i)) {
-                oss << (isFirstChild ? "" : ",\n");
-                oss << node2json(nodePointer->getChild(i), tier + 2);
-                isFirstChild = false;
-            } else {
-                oss << (isFirstChild ? "" : ",\n");
-                oss << repeatString(tier + 1, "\t") << "{\n";
-                oss << repeatString(tier + 2, "\t") << "\"children\": [],\n";
-                oss << repeatString(tier + 2, "\t") << R"("name": ")" << "None" << "\"\n";
-                oss << repeatString(tier + 1, "\t") << "}";
-                isFirstChild = false;
-            }
-        oss << "\n" << repeatString(tier, "\t") << "],\n";
-    }
-    oss << repeatString(tier, "\t") << R"("name": ")" << nodePointer->getData() << "\"\n";
-    oss << repeatString(tier - 1, "\t") << "}";
-    return oss.str();
-}
-
 template<typename T, size_t ChildNum, class Leaves>
 std::ofstream &operator<<(std::ofstream &output, Tree<T, ChildNum, Leaves> &Tr) {
-    output << node2json(Tr.root, 1);
+    output << Tr.root->node2json(1);
     return output;
 }
 
 
 template<typename T, size_t ChildNum, class Leaves>
 std::ostream &operator<<(std::ostream &os, Tree<T, ChildNum, Leaves> &Tr) {
-    return os << node2json(Tr.root, 1);
+    return os << Tr.root->node2json(1);
 }
 
 template<typename T, class Leaves>

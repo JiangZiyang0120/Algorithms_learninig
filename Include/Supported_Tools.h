@@ -59,7 +59,7 @@ void printTree(std::ofstream &ofs, std::string &fileName,TreeClass &TC){
     ofs.open(fileName);
     ofs<<TC<<std::endl;
     ofs.close();
-    system("pytm-cli -i data.json -t 1");
+    system("pytm-cli -i data.json -t 1 -d TB");
     system("firefox ./TreeMap.html");
 }
 

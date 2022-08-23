@@ -32,7 +32,7 @@ public:
 
     std::shared_ptr<Leaves> predecessor(std::shared_ptr<Leaves> Node);
 
-    void insert(T x);
+    std::shared_ptr<Leaves> insert(T x);
 
     void remove(std::shared_ptr<Leaves> Node);
 
@@ -105,25 +105,33 @@ std::shared_ptr<Leaves> BinarySearchingTree<T, Leaves>::predecessor(std::shared_
 }
 
 template<typename T, class Leaves>
-void BinarySearchingTree<T, Leaves>::insert(T x) {
-    if (!this->getRoot())
+std::shared_ptr<Leaves> BinarySearchingTree<T, Leaves>::insert(T x) {
+    if (!this->getRoot()){
         this->setRoot(x);
-    auto preNode = this->getRoot();
-    std::shared_ptr<Leaves> nextNode = preNode;
-    while (nextNode && x != preNode->getData()) {
-        preNode = nextNode;
-        nextNode = (x > preNode->getData()) ? preNode->getRightChild() : preNode->getLeftChild();
+        return this->getRoot();
     }
-    if (x > preNode->getData())
-        preNode->setRightChild(x);
-    else if (x == preNode->getData());
-    else
-        preNode->setLeftChild(x);
+    else{
+        std::shared_ptr<Leaves> preNode = this->getRoot();
+        std::shared_ptr<Leaves> nextNode = preNode;
+        while (nextNode && x != preNode->getData()) {
+            preNode = nextNode;
+            nextNode = (x > preNode->getData()) ? preNode->getRightChild() : preNode->getLeftChild();
+        }
+        if (x > preNode->getData()) {
+            preNode->setRightChild(x);
+            return preNode->getRightChild();
+        } else if (x == preNode->getData())
+            return preNode;
+        else {
+            preNode->setLeftChild(x);
+            return preNode->getLeftChild();
+        }
+    }
 }
 
 template<typename T, class Leaves>
 void BinarySearchingTree<T, Leaves>::remove(std::shared_ptr<Leaves> Node) {
-    if(!Node)
+    if (!Node)
         return;
     if (!Node->getLeftChild()) {
         transPlant(Node, Node->getRightChild());
@@ -133,12 +141,12 @@ void BinarySearchingTree<T, Leaves>::remove(std::shared_ptr<Leaves> Node) {
         } else {
             auto suc = successor(Node);
             if (Node->getRightChild() == suc) {
-                transPlant(Node,Node->getRightChild());
+                transPlant(Node, Node->getRightChild());
             } else {
-                transPlant(suc,suc->getRightChild());
+                transPlant(suc, suc->getRightChild());
                 suc->setRightChild(Node->getRightChild());
                 suc->setLeftChild(Node->getLeftChild());
-                transPlant(Node,suc);
+                transPlant(Node, suc);
             }
         }
     }
@@ -146,7 +154,7 @@ void BinarySearchingTree<T, Leaves>::remove(std::shared_ptr<Leaves> Node) {
 
 template<typename T, class Leaves>
 void BinarySearchingTree<T, Leaves>::transPlant(std::shared_ptr<Leaves> originNode, std::shared_ptr<Leaves> plantNode) {
-    if(!originNode)
+    if (!originNode)
         throw std::runtime_error("Node originNode is NULL");
     if (!originNode->getParent())
         this->setRoot(plantNode);

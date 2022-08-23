@@ -14,4 +14,11 @@
 #include <memory>
 #include <sstream>
 
+inline std::string repeatString(size_t tier, std::string &&str) {
+    std::string returnStr;
+    for (size_t i = 0; i != tier; ++i)
+        returnStr.insert(returnStr.end(), str.begin(), str.end());
+    return std::move(returnStr);
+}
+
 #endif //MAIN_CPP_DS_HEADER_H
