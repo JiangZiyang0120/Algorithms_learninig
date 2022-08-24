@@ -15,14 +15,22 @@ void testInsertAndRemove() {
         if(order == "insert"){
             std::cin >> elem;
             BT.insert(elem);
-//        }else if(order == "remove"){
-//            std::cin >> elem;
-//            BT.remove(BT.search(elem));
+        }else if(order == "remove"){
+            std::cin >> elem;
+            BT.remove(BT.search(elem));
         } else if(order == "printTree")
             printTree(BT);
         else
             std::cout<<"Not a order, please enter again"<<std::endl;
     }
+}
+
+void setRBT(){
+    RedBlackTree<int> BT;
+    for(int i = -20; i != 20; ++i){
+        BT.insert(i);
+    }
+    printTree(BT);
 }
 
 int main(){

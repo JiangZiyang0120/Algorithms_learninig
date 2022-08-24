@@ -36,19 +36,9 @@ void testTree(){
     std::string fileName = "data.json";
     std::vector<char> vec({'A','B','C','D','E','F','G','H','I','J','K','L','M','N'});
     Tree<char,3> T(vec.begin(),vec.end());
-    openFile.open(fileName);
-    openFile<<T<<std::endl;
-    openFile.close();
-    std::cout<<fileName<<" is written successfully"<<std::endl;
-    system("pytm-cli -i data.json -t 1");
-    system("firefox ./TreeMap.html");
+    printTree(T);
     auto T2 = T.Tree2BinaryTree();
-    openFile.open(fileName);
-    openFile<<T2<<std::endl;
-    openFile.close();
-    std::cout<<fileName<<" is written successfully"<<std::endl;
-    system("pytm-cli -i data.json -t 1");
-    system("firefox ./TreeMap.html");
+    printTree(T2);
 }
 
 void testWalk(){

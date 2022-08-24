@@ -14,7 +14,7 @@ enum colorSet {
 };
 
 static const char *colorChar[] = {
-        "RED", "BLACK"
+        "PINK", "CYAN"
 };
 
 template<typename T>
@@ -176,8 +176,12 @@ public:
 
     std::shared_ptr<Leaves> insert(T x);
 
+    void remove(std::shared_ptr<Leaves> pointer);
+
 private:
     void insertFixup(std::shared_ptr<Leaves> pointer);
+
+    void removeFixup(std::shared_ptr<Leaves> pointer, std::shared_ptr<Leaves> pointerParent);
 
     void leftRotate(std::shared_ptr<Leaves> pointer);
 
@@ -190,6 +194,40 @@ std::shared_ptr<Leaves> RedBlackTree<T, Leaves>::insert(T x) {
     auto pointer = BSTP->insert(x);
     insertFixup(pointer);
     return pointer;
+}
+
+template<typename T, class Leaves>
+void RedBlackTree<T, Leaves>::remove(std::shared_ptr<Leaves> pointer) {
+    if (!pointer)
+        return;
+    auto temp = pointer;
+    std::shared_ptr<Leaves> reservoir, reservoirParent;
+    colorSet tempColor = pointer->getColor();
+    if (!pointer->getLeftChild()) {
+        reservoir = pointer->getRightChild();
+        reservoirParent = pointer->getParent();
+        this->transPlant(pointer, pointer->getRightChild());
+    } else if (!pointer->getRightChild()) {
+        reservoir = pointer->getLeftChild();
+        reservoirParent = pointer->getParent();
+        this->transPlant(pointer, pointer->getLeftChild());
+    } else {
+        temp = this->minimum(pointer->getRightChild());
+        tempColor = temp->getColor();
+        reservoir = temp->getRightChild();
+        if (temp->getParent() == pointer)
+            reservoirParent = temp;
+        else {
+            reservoirParent = temp->getParent();
+            this->transPlant(temp, temp->getRightChild());
+            temp->setRightChild(pointer->getRightChild());
+        }
+        this->transPlant(pointer, temp);
+        temp->setLeftChild(pointer->getLeftChild());
+        temp->setColor(pointer->getColor());
+    }
+    if (tempColor == BLACK)
+        removeFixup(reservoir,reservoirParent);
 }
 
 template<typename T, class Leaves>
@@ -233,6 +271,71 @@ void RedBlackTree<T, Leaves>::insertFixup(std::shared_ptr<Leaves> pointer) {
         }
     }
     this->getRoot()->setColor(BLACK);
+}
+
+template<typename T, class Leaves>
+void RedBlackTree<T, Leaves>::removeFixup(std::shared_ptr<Leaves> pointer, std::shared_ptr<Leaves> pointerParent) {
+    while (pointer != this->getRoot() && (!pointer || pointer->getColor() == BLACK)) {
+        if (pointer == pointerParent->getLeftChild()) {
+            auto temp = pointerParent->getRightChild();
+            //Cause temp is RED, the pointerParent's color must be BLACK
+            //And we swap their color and execute a rotation
+            if (temp->getColor() == RED) {
+                temp->setColor(BLACK);
+                pointerParent->setColor(RED);
+                leftRotate(pointerParent);
+                temp = pointerParent->getRightChild();
+            }
+            //temp's left and right children are both (BLACK or NIL)
+            if (!(temp->getRightChild() && temp->getRightChild()->getColor() == RED) &&
+                !(temp->getLeftChild() || temp->getLeftChild()->getColor() == RED)) {
+                temp->setColor(RED);
+                pointer = pointerParent;
+                pointerParent = pointer->getParent();
+            } else {
+                if (!(temp->getRightChild() && temp->getRightChild()->getColor() == RED)) {
+                    temp->getLeftChild()->setColor(BLACK);
+                    temp->setColor(RED);
+                    rightRotate(temp);
+                    temp = pointerParent->getRightChild();
+                }
+                temp->setColor(pointerParent->getColor());
+                pointerParent->setColor(BLACK);
+                temp->getRightChild()->setColor(BLACK);
+                leftRotate(pointerParent);
+                pointer = this->getRoot();
+            }
+        } else{
+            auto temp = pointerParent->getLeftChild();
+            //Cause temp is RED, the pointerParent's color must be BLACK
+            //And we swap their color and execute a rotation
+            if (temp->getColor() == RED) {
+                temp->setColor(BLACK);
+                pointerParent->setColor(RED);
+                rightRotate(pointerParent);
+                temp = pointerParent->getLeftChild();
+            }
+            //temp's left and right children are both (BLACK or NIL)
+            if (!(temp->getRightChild() && temp->getRightChild()->getColor() == RED) &&
+                !(temp->getLeftChild() || temp->getLeftChild()->getColor() == RED)) {
+                temp->setColor(RED);
+                pointer = pointerParent;
+                pointerParent = pointer->getParent();
+            } else {
+                if (!(temp->getLeftChild() && temp->getLeftChild()->getColor() == RED)) {
+                    temp->getRightChild()->setColor(BLACK);
+                    temp->setColor(RED);
+                    leftRotate(temp);
+                    temp = pointerParent->getLeftChild();
+                }
+                temp->setColor(pointerParent->getColor());
+                pointerParent->setColor(BLACK);
+                temp->getLeftChild()->setColor(BLACK);
+                rightRotate(pointerParent);
+                pointer = this->getRoot();
+            }
+        }
+    }
 }
 
 template<typename T, class Leaves>

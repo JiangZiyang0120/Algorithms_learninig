@@ -36,7 +36,7 @@ public:
 
     void remove(std::shared_ptr<Leaves> Node);
 
-private:
+protected:
     void transPlant(std::shared_ptr<Leaves> originNode, std::shared_ptr<Leaves> plantNode);
 };
 
@@ -106,11 +106,10 @@ std::shared_ptr<Leaves> BinarySearchingTree<T, Leaves>::predecessor(std::shared_
 
 template<typename T, class Leaves>
 std::shared_ptr<Leaves> BinarySearchingTree<T, Leaves>::insert(T x) {
-    if (!this->getRoot()){
+    if (!this->getRoot()) {
         this->setRoot(x);
         return this->getRoot();
-    }
-    else{
+    } else {
         std::shared_ptr<Leaves> preNode = this->getRoot();
         std::shared_ptr<Leaves> nextNode = preNode;
         while (nextNode && x != preNode->getData()) {
