@@ -10,6 +10,7 @@ int main() {
     List<int> L;
     cout << "Please enter the order(insert or remove) and the elem(double)" << endl;
     cout << "like \"insert 3\"(int) or \"remove 3\"(without space)" << endl;
+    cout << "enter \"quit\" to end input" << endl;
     string str;
     double elem;
     for (;;) {
@@ -26,8 +27,12 @@ int main() {
             } catch (runtime_error e) {
                 cout << "We didn't find the elem " << elem << endl;
             }
-        }
+        } else if(str == "quit")
+            break;
         cout << "The list is " << L << endl << endl;
         cout << "Please enter the order(insert or remove) and the elem(double)" << endl;
+    }
+    for(auto iter = L.begin(); iter != L.end(); ++iter){
+        cout<<*iter<<endl;
     }
 }

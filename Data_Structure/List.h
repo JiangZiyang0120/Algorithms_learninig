@@ -10,8 +10,13 @@
 template<typename T>
 class List;
 
+template<class T>
+class ListIterator;
+
 template<typename T>
 class Node {
+    friend class ListIterator<Node<T>>;
+
     friend class List<T>;
 
     template<typename NAME>
@@ -43,6 +48,29 @@ private:
     class Node<T> *nextNode;
 };
 
+template<class T>
+class ListIterator : public MyIterator<T> {
+public:
+    explicit ListIterator(T *p) : MyIterator<T>(p) {}
+
+    ListIterator<T> &operator++();
+
+    ListIterator<T> operator++(int);
+};
+
+template<typename T>
+ListIterator<T> &ListIterator<T>::operator++() {
+    this->_ptr = this->_ptr->nextNode;
+    return *this;
+}
+
+template<typename T>
+ListIterator<T> ListIterator<T>::operator++(int) {
+    MyIterator<T> temp = *this;
+    this->_ptr = this->_ptr->nextNode;
+    return temp;
+}
+
 template<typename T>
 class List {
     template<typename NAME>
@@ -61,8 +89,8 @@ public:
         insert(rs);
     }
 
-    ~List(){
-        for(class Node<T> *pointer = tail; pointer != head;){
+    ~List() {
+        for (class Node<T> *pointer = tail; pointer != head;) {
             auto temp = pointer;
             pointer = pointer->prevNode;
             delete temp;
@@ -79,6 +107,10 @@ public:
     void remove(class Node<T> *);
 
     void remove(T);
+
+    ListIterator<Node<T>> begin();
+
+    ListIterator<Node<T>> end();
 
 private:
     class Node<T> *head;
@@ -124,6 +156,16 @@ void List<T>::remove(T rs) {
 }
 
 template<typename T>
+ListIterator<Node<T>> List<T>::begin() {
+    return ListIterator<Node<T>>(head->nextNode);
+}
+
+template<typename T>
+ListIterator<Node<T>> List<T>::end() {
+    return ListIterator<Node<T>>(tail);
+}
+
+template<typename T>
 std::ostream &operator<<(std::ostream &os, Node<T> &N) {
     return os << N.elem;
 }
@@ -135,16 +177,16 @@ std::ostream &operator<<(std::ostream &os, Node<T> &&N) {
 
 template<typename T>
 std::ostream &operator<<(std::ostream &os, List<T> &L) {
-    for(auto pointer = L.head->nextNode; pointer != L.tail; pointer = pointer->nextNode){
-        os<<*pointer<<", ";
+    for (auto pointer = L.head->nextNode; pointer != L.tail; pointer = pointer->nextNode) {
+        os << *pointer << ", ";
     }
     return os;
 }
 
 template<typename T>
 std::ostream &operator<<(std::ostream &os, List<T> &&L) {
-    for(auto pointer = L.head->nextNode; pointer != L.tail; pointer = pointer->nextNode){
-        os<<*pointer<<", ";
+    for (auto pointer = L.head->nextNode; pointer != L.tail; pointer = pointer->nextNode) {
+        os << *pointer << ", ";
     }
     return os;
 }
