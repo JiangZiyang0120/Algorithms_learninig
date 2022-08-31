@@ -14,6 +14,7 @@
 #include <memory>
 #include <sstream>
 #include <map>
+#include <set>
 
 inline std::string repeatString(size_t tier, std::string &&str) {
     std::string returnStr;
@@ -38,6 +39,8 @@ public:
     MyIterator<T> operator++(int);
     
     T& operator*();
+
+    T *operator->();
 
 protected:
     T *_ptr;
@@ -74,5 +77,10 @@ MyIterator<T> MyIterator<T>::operator++(int) {
 template<class T>
 T &MyIterator<T>::operator*() {
     return *_ptr;
+}
+
+template<class T>
+T *MyIterator<T>::operator->() {
+    return _ptr;
 }
 #endif //MAIN_CPP_DS_HEADER_H
