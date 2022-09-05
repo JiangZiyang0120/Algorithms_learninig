@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <Eigen/Core>
 
 /*
  * A function to output the vector with iostream
@@ -70,4 +71,17 @@ void printTree(TreeClass &TC){
     printTree(ofs,fileName,TC);
 }
 
+
+template <typename T, int row, int col>
+std::ostream &operator<<(std::ostream &os, Eigen::Matrix<T,row,col> &M){
+    size_t rowNum = M.rows(),colNum = M.cols();
+    for (size_t i = 0; i != rowNum; ++i) {
+        for (size_t j = 0; j != colNum; ++j) {
+            os.width(10);
+            os << M(i, j);
+        }
+        os << "\n";
+    }
+    return os;
+}
 #endif //ALGORITHMS_SUPPORTED_TOOLS_H

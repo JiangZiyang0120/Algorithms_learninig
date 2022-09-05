@@ -271,4 +271,45 @@ void UndirectedAdjacentList<Vertex, Edge>::remove(std::shared_ptr<Vertex> origin
     pointer->remove(node, origin);
 }
 
+template<class Vertex = ::Vertex, class Edge = ::Edge<Vertex>>
+class UndirectedAdjacentArray : public AdjacentArray<Vertex, Edge> {
+public:
+    void insert(std::shared_ptr<Vertex>, std::shared_ptr<Vertex>, double);
+
+    void insert(size_t, size_t, double);
+
+    void remove(std::shared_ptr<Vertex>, std::shared_ptr<Vertex>);
+
+    void remove(size_t, size_t);
+};
+
+template<class Vertex, class Edge>
+void
+UndirectedAdjacentArray<Vertex, Edge>::insert(std::shared_ptr<Vertex> origin, std::shared_ptr<Vertex> next, double w) {
+    AdjacentArray<Vertex, Edge> *pointer = this;
+    pointer->insert(origin, next, w);
+    pointer->insert(next, origin, w);
+}
+
+template<class Vertex, class Edge>
+void UndirectedAdjacentArray<Vertex, Edge>::insert(size_t row, size_t col, double w) {
+    AdjacentArray<Vertex, Edge> *pointer = this;
+    pointer->insert(row, col, w);
+    pointer->insert(col, row, w);
+}
+
+template<class Vertex, class Edge>
+void UndirectedAdjacentArray<Vertex, Edge>::remove(std::shared_ptr<Vertex> origin, std::shared_ptr<Vertex> next) {
+    AdjacentArray<Vertex, Edge> *pointer = this;
+    pointer->remove(origin, next);
+    pointer->remove(next, origin);
+}
+
+template<class Vertex, class Edge>
+void UndirectedAdjacentArray<Vertex, Edge>::remove(size_t row, size_t col) {
+    AdjacentArray<Vertex, Edge> *pointer = this;
+    pointer->remove(row, col);
+    pointer->remove(col, row);
+}
+
 #endif //MAIN_CPP_GRAPH_H
