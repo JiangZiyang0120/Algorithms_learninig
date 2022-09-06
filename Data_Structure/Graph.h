@@ -311,5 +311,4 @@ void UndirectedAdjacentArray<Vertex, Edge>::remove(size_t row, size_t col) {
     pointer->remove(row, col);
     pointer->remove(col, row);
 }
-
 #endif //MAIN_CPP_GRAPH_H
